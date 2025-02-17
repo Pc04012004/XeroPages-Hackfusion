@@ -61,6 +61,3 @@ Expected Impact:
 ✔ Accountability: Budget tracking and complaint handling prevent misuse of funds and power.
 ✔ Fair Elections: A structured online voting system ensures integrity.
 ✔ Student Safety: Automated health and leave notifications keep parents informed.
-
-
-now for this ...give me a website structure design ...step by step page by page 
