@@ -8,7 +8,6 @@ function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
 
 
   // Handle the sign-in action and redirect to home page
@@ -18,7 +17,6 @@ function Login() {
     const userData = {
         email,
         password,
-        role
       };
 
     console.log(userData);
@@ -35,15 +33,11 @@ function Login() {
     setPassword(event.target.value);
   }
 
-  function handleRoleChange(event) {
-    setRole(event.target.value);
-  }
-
   return (
     <>
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-lg h-[500px] flex flex-col justify-center"> 
-          {/* Container with increased padding and height */}
+          
           
           <h2 className="text-3xl font-semibold text-gray-900 text-center mb-6">Sign In</h2>
           <p className="text-sm text-gray-600 text-center mb-8">
@@ -71,22 +65,6 @@ function Login() {
                 className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
-
-            {/* Login Type Dropdown */}
-            <div className="mb-0">
-              <select
-                onChange={handleRoleChange}
-                className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={role}
-                required
-              >
-                <option value="" disabled selected className="text-gray-400">Login as</option>
-                <option value="Student">Student</option>
-                <option value="Faculty">Faculty</option>
-                <option value="Admin">Admin</option>
-                <option value="Doctor">Doctor</option>
-              </select>
             </div>
 
             {/* Sign In Button */}
