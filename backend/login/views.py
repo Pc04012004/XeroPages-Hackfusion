@@ -46,3 +46,18 @@ class login(generics.CreateAPIView):
     })
         else:
             return JsonResponse({"comment": "Wrong Password"}, status=401)
+        
+class ChangePasswordView(generics.RetrieveUpdateAPIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user  # Get the authenticated user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        # Step 1: Check if old password is correct
+        if not user.check_password(old_password):
+            return JsonResponse({"error": "Incorrect old password"}, status=400)
+
+        # Step 2: Set the new password securely
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"message": "Password changed successfully"})
