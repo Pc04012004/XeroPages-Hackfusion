@@ -7,6 +7,8 @@ import RegisterCandidate from './Components/Elections/registerCandidate.jsx';
 import ElectionPost from './Components/Elections/election-post.jsx';
 import ElectionNominee from './Components/Elections/election-nominee.jsx';
 import AdminNominee from './Components/Elections/nominee_admin.jsx';
+import StudentEditProfile from './Components/Profile/student-edit.jsx';
+import FacultyEditProfile from './Components/Profile/faculty-edit.jsx';
 
 function App() {
   return (
@@ -20,6 +22,9 @@ function App() {
         <Route path="/elections/:postTitle" element={<ElectionPost />} />
         <Route path="/elections/nominee/:nomineeName" element={<ElectionNominee />} />
         <Route path="elections/admin/:nominee" element={<AdminNominee />} />
+        <Route path="/home/profile/student" element={<StudentEditProfile />} />
+        <Route path="/home/profile/faculty" element={<FacultyEditProfile />} />
+
       </Routes>
     </Router>
   );
