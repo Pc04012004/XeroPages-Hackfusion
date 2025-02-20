@@ -10,6 +10,7 @@ import AdminNominee from './Components/Elections/nominee_admin.jsx';
 import StudentEditProfile from './Components/Profile/student-edit.jsx';
 import FacultyEditProfile from './Components/Profile/faculty-edit.jsx';
 import ProfilePage from './Components/Profile/profile-home.jsx';
+import StudentDashboard from './Components/Health-Leave/hl-student.jsx';
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
         <Route path="/home/profile/student" element={<StudentEditProfile />} />
         <Route path="/home/profile/faculty" element={<FacultyEditProfile />} />
         <Route path="/home/profile" element={<ProfilePage />} />
+        <Route path="/home/health-leave" element={<StudentDashboard />} />
+         
 
       </Routes>
     </Router>

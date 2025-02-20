@@ -1,65 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function FacultyEditProfile() {
-  const [profile, setProfile] = useState({
-    name: "Dr. Jane Smith",
-    dob: "1980-08-22",
-    email: "janesmith@example.com",
-    phone_no: "+1987654321",
-    gender: "Female",
+  const [formData, setFormData] = useState({
+    user: null,
+    name: "",
+    dob: "",
+    email: "",
+    phone_no: "",
+    gender: "Male",
+    address: "",
     profile_picture: null,
-    designation: "Professor",
-    department: "Mathematics",
-    qualification: "Ph.D. in Applied Mathematics",
-    years_of_experience: 15,
+    designation: "",
+    department: "",
+    qualification: "",
+    years_of_experience: "",
   });
 
-  const [systemPassword, setSystemPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
+  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({
-      ...profile,
-      [name]: value,
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'newPassword') {
-      setNewPassword(value);
-    } else if (name === 'confirmPassword') {
-      setConfirmPassword(value);
+  // Handle image selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, profile_picture: file });
+      setImagePreview(URL.createObjectURL(file)); // Show preview
     }
   };
 
-  const handleSubmit = (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
+    setError(null);
+
+    // Get the user ID from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user ? user.user_id : null;
+
+    // Add the user ID to the form data
+    const updatedFormData = { ...formData, user: userId };
+
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setError("Authentication token is missing. Please log in again.");
+        return;
+      }
+
+      // Create FormData object
+      const formDataToSend = new FormData();
+      for (const key in updatedFormData) {
+        if (updatedFormData[key] !== null && updatedFormData[key] !== undefined) {
+          formDataToSend.append(key, updatedFormData[key]);
+        }
+      }
+
+      // Log the form data being sent
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(key, value);
+      }
+
+      // Send the request to the backend
+      const response = await axios.post(
+        "http://127.0.0.1:8000/auth/faculty/profile/",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        navigate("/home"); // Navigate on success
+      } else {
+        setError("Failed to register faculty. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred while registering. Please check the details.");
+      console.error(err); // Log the error for debugging
     }
-    console.log('Updated Profile:', profile);
-    console.log('New Password:', newPassword);
-    // Add API call to save the updated profile and password
   };
 
   return (
-    <div className="p-4 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100 min-h-screen">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
+        <h1 className="text-2xl font-bold mb-6">Register Faculty</h1>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name and Date of Birth in the same row */}
+          {/* Name and DOB */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
                 type="text"
                 name="name"
-                value={profile.name}
+                value={formData.name}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -70,7 +119,7 @@ function FacultyEditProfile() {
               <input
                 type="date"
                 name="dob"
-                value={profile.dob}
+                value={formData.dob}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -78,14 +127,14 @@ function FacultyEditProfile() {
             </div>
           </div>
 
-          {/* Email and Phone Number in the same row */}
+          {/* Email and Phone No */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 name="email"
-                value={profile.email}
+                value={formData.email}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -96,7 +145,7 @@ function FacultyEditProfile() {
               <input
                 type="tel"
                 name="phone_no"
-                value={profile.phone_no}
+                value={formData.phone_no}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -104,13 +153,13 @@ function FacultyEditProfile() {
             </div>
           </div>
 
-          {/* Gender and System Generated Password in the same row */}
+          {/* Gender and Address */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Gender</label>
               <select
                 name="gender"
-                value={profile.gender}
+                value={formData.gender}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -121,26 +170,26 @@ function FacultyEditProfile() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">System Generated Password</label>
+              <label className="block text-sm font-medium text-gray-700">Address</label>
               <input
-                type="password"
-                name="systemPassword"
-                value={systemPassword}
-                onChange={(e) => setSystemPassword(e.target.value)}
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
               />
             </div>
           </div>
 
-          {/* Designation and Department in the same row */}
+          {/* Designation and Department */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Designation</label>
               <input
                 type="text"
                 name="designation"
-                value={profile.designation}
+                value={formData.designation}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -151,7 +200,7 @@ function FacultyEditProfile() {
               <input
                 type="text"
                 name="department"
-                value={profile.department}
+                value={formData.department}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -159,14 +208,14 @@ function FacultyEditProfile() {
             </div>
           </div>
 
-          {/* Qualification and Years of Experience in the same row */}
+          {/* Qualification and Years of Experience */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Qualification</label>
               <input
                 type="text"
                 name="qualification"
-                value={profile.qualification}
+                value={formData.qualification}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -177,7 +226,7 @@ function FacultyEditProfile() {
               <input
                 type="number"
                 name="years_of_experience"
-                value={profile.years_of_experience}
+                value={formData.years_of_experience}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
@@ -185,46 +234,34 @@ function FacultyEditProfile() {
             </div>
           </div>
 
-          {/* New Password and Confirm Password in the same row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">New Password</label>
-              <input
-                type="password"
-                name="newPassword"
-                value={newPassword}
-                onChange={handlePasswordChange}
-                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
-                required
+          {/* Profile Picture Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Profile Preview"
+                className="mt-2 w-24 h-24 object-cover rounded-full border"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={confirmPassword}
-                onChange={handlePasswordChange}
-                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
+            )}
           </div>
 
-          {/* Password Error Message */}
-          {passwordError && (
-            <div className="text-red-600 text-sm">
-              {passwordError}
-            </div>
-          )}
+          {/* Error Message */}
+          {error && <div className="text-red-600 text-sm">{error}</div>}
 
-          {/* Save Changes Button */}
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+              className="w-full bg-blue-600 text-white p-1.5 rounded-md hover:bg-blue-700"
             >
-              Save Changes
+              Register
             </button>
           </div>
         </form>
