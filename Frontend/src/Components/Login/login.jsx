@@ -43,6 +43,11 @@ function Login() {
     }
   };
 
+  const handleAdminLogin = () => {
+    // Redirect to the Django admin panel
+    window.location.href = "http://127.0.0.1:8000/admin";
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-lg h-[500px] flex flex-col justify-center">
@@ -75,6 +80,12 @@ function Login() {
             Sign In
           </button>
         </form>
+        <button
+          onClick={handleAdminLogin}
+          className="w-full p-3 text-white bg-gray-900 rounded-full hover:bg-gray-700 focus:outline-none mt-[10px]"
+        >
+          Login as Admin
+        </button>
       </div>
     </div>
   );
