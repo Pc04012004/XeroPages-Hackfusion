@@ -38,6 +38,8 @@ function StudentDashboard() {
   };
 
   return (
+    <>
+    <NavBar />
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Student Dashboard</h1>
 
@@ -123,6 +125,8 @@ function StudentDashboard() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
 
