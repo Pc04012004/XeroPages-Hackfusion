@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ElectionPostListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated,IsDean_s]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     
@@ -134,7 +134,8 @@ class ApprovedCandidatesPublicView(generics.ListAPIView):
     - Publicly accessible.
     """
     queryset = Candidate.objects.filter(dean_approved=True, director_approved=True)
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateSerializer_d
+
 
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
