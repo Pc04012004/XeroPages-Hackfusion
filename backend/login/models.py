@@ -1,114 +1,3 @@
-# import random
-# import string
-# from django.contrib.auth.models import AbstractUser
-# from django.db import models
-# def generate_funny_username():
-#     adjectives = ["Silly", "Wacky", "Funky", "Goofy", "Jolly", "Bouncy", "Zany", "Loopy"]
-#     nouns = ["Penguin", "Banana", "Noodle", "Cactus", "Marshmallow", "Dolphin", "Unicorn", "Pancake"]
-#     return  f"{random.choice(adjectives)}{random.choice(nouns)}{random.randint(100, 999)}"
-
-# def generate_random_password(length=10):
-#     characters = string.ascii_letters + string.digits
-#     return ''.join(random.choice(characters) for _ in range(length))
-
-# # class Custom_User(AbstractUser):
-# #     ROLE_CHOICES = [
-# #         ('student', 'Student'),
-# #         ('faculty', 'Faculty'),
-# #         ('hod', 'Head of Department'),
-# #         ('dean_student', 'Dean of Student'),
-# #         ('dean_finance', 'Dean of Finance'),
-# #         ('director', 'Director'),
-# #         ('admin', 'Admin'),
-# #     ]
-# #     email = models.EmailField(unique=True)
-# #     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
-    
-# #     def __str__(self):
-# #         return f"{self.username} - {self.role}"
-# # class Custom_User(AbstractUser):
-# #     ROLE_CHOICES = [
-# #         ('student', 'Student'),
-# #         ('faculty', 'Faculty'),
-# #         ('hod', 'Head of Department'),
-# #         ('dean_student', 'Dean of Student'),
-# #         ('dean_finance', 'Dean of Finance'),
-# #         ('director', 'Director'),
-# #         ('admin', 'Admin'),
-# #     ]
-
-# #     username = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Auto-generated
-# #     email = models.EmailField(unique=True)  # Required
-# #     first_name = models.CharField(max_length=30)
-# #     last_name = models.CharField(max_length=30)
-# #     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
-
-# #     USERNAME_FIELD = "email"
-# #     REQUIRED_FIELDS = ["first_name", "last_name", "role"]
-
-# #     def save(self, *args, **kwargs):
-# #         if not self.username:  # Auto-generate username for students
-# #             if self.role == "student":
-# #                 self.username = generate_funny_username()
-# #             else:
-# #                 self.username = self.email.split('@')[0]  # Use email prefix for non-students
-
-# #         if not self.password:  # Generate random password
-# #             password = generate_random_password()
-# #             self.set_password(password)
-
-# #         super().save(*args, **kwargs)
-
-# #     def __str__(self):
-# #         return f"{self.email} - {self.role}"
-# from django.contrib.auth.models import AbstractUser, BaseUserManager
-# from django.db import models
-# import random
-# import string
-
-# class UserManager(BaseUserManager):
-#     def create_user(self, email, first_name, last_name, role, password=None, **extra_fields):
-#         if not email:
-#             raise ValueError('The Email field must be set')
-        
-#         # Generate a random username
-#         username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-        
-#         # Generate a random password if not provided
-#         if not password:
-#             password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-        
-#         email = self.normalize_email(email)
-#         user = self.model(
-#             email=email,
-#             username=username,
-#             first_name=first_name,
-#             last_name=last_name,
-#             role=role,
-#             **extra_fields
-#         )
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-
-#     def create_superuser(self, email, first_name, last_name, role, password=None, **extra_fields):
-#         extra_fields.setdefault('is_staff', True)
-#         extra_fields.setdefault('is_superuser', True)
-#         return self.create_user(email, first_name, last_name, role, password, **extra_fields)
-
-# class Custom_User(AbstractUser):
-#     email = models.EmailField(unique=True)
-#     first_name = models.CharField(max_length=30)
-#     last_name = models.CharField(max_length=30)
-#     role = models.CharField(max_length=50)
-    
-#     # Remove the username field
-#     username = models.CharField(max_length=150, unique=True, blank=True)
-    
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
-    
-#     objects = UserManager()
 
 import random
 import string
@@ -201,3 +90,49 @@ class Custom_User(AbstractUser):
 
     def __str__(self):
         return f"{self.email} - {self.role}"
+
+class UploadedCSV(models.Model):
+    file = models.FileField(upload_to="csv_uploads/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    def __str__(self):
+        return f"CSV File: {self.filename()} - {self.uploaded_at}"
+
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=255)
+    dob = models.DateField()
+    email = models.EmailField(unique=True)
+    registration_no = models.CharField(max_length=100, unique=True)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    address = models.CharField(max_length=255)
+    course = models.CharField(max_length=50)
+    department = models.CharField(max_length=100)
+    year_of_study = models.IntegerField()
+    phone_no = models.CharField(max_length=15)
+    hostel_status = models.BooleanField()
+    profile_picture = models.ImageField(upload_to='profiles/students/', null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
+
+class FacultyProfile(models.Model):
+    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    dob = models.DateField()
+    email = models.EmailField(unique=True)
+    phone_no = models.CharField(max_length=15)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    address = models.CharField(max_length=255)
+    profile_picture = models.ImageField(upload_to='profiles/faculty/', null=True, blank=True)
+    designation = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    qualification = models.CharField(max_length=255)
+    years_of_experience = models.IntegerField()
+
+    def __str__(self):
+        return self.name
