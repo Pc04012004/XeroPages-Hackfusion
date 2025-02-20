@@ -11,3 +11,13 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Custom_User
         fields = '__all__'
+
+class StudentProfileSerializer(serializers.ModelSerializer):
+      class Meta:
+        model =  StudentProfile
+        fields = '__all__'
+
+class  FacultyProfileSerializer(serializers.ModelSerializer):
+      class Meta:
+        model =  FacultyProfile
+        fields = '__all__'

@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from .forms import UserCreationForm
-from .models import Custom_User, UploadedCSV
+from .models import Custom_User, UploadedCSV,StudentProfile,FacultyProfile
 import csv
 from django.contrib import admin, messages
 from django.contrib.auth.hashers import make_password
@@ -35,10 +35,7 @@ class UserAdmin(admin.ModelAdmin):
         if not change:  # Only generate a password for new users
             random_password = get_random_string(12)  # Generate a random password
             obj.set_password(random_password)  # Set the password
-            if obj.role == "student":
-                obj.username = generate_random_username()
-            else:
-                obj.username = obj.email.split("@")[0]  # Use email prefix as username
+            obj.username = obj.email.split("@")[0]  # Use email prefix as username
 
             # Send email with login details
             send_mail(
@@ -60,12 +57,21 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.register(User, UserAdmin)
 
 
+import csv
+from django.contrib import admin, messages
+from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password
+from django.http import HttpResponseRedirect
+from django.urls import path, reverse
+from django.utils.html import format_html
+from .models import Custom_User, UploadedCSV
+
 class UploadedCSVAdmin(admin.ModelAdmin):
-    list_display = ("filename", "uploaded_at")
+    list_display = ("filename", "uploaded_at", "process_csv_button")
     ordering = ("-uploaded_at",)
 
     def process_csv(self, request, object_id):
-        """Process uploaded CSV and create users"""
+        """Process the uploaded CSV file and create users"""
         uploaded_csv = UploadedCSV.objects.get(id=object_id)
 
         with open(uploaded_csv.file.path, "r", encoding="utf-8") as file:
@@ -74,9 +80,13 @@ class UploadedCSVAdmin(admin.ModelAdmin):
             skipped_count = 0
 
             for row in reader:
-                first_name, last_name, email, role = row
+                try:
+                    first_name, last_name, email, role = row
+                except ValueError:
+                    messages.warning(request, "Incorrect CSV format. Expected 4 columns: first_name, last_name, email, role.")
+                    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
-                if not email.endswith("@college.edu"):
+                if not email.endswith("@sggs.ac.in"):
                     messages.warning(request, f"Skipped: {email} is not a valid college email.")
                     skipped_count += 1
                     continue  
@@ -85,21 +95,21 @@ class UploadedCSVAdmin(admin.ModelAdmin):
                     messages.warning(request, f"Skipped: {email} already exists.")
                     skipped_count += 1
                     continue  
- 
-                username=generate_random_username()
-                random_password = get_random_string(12)
+
+                password = random_password = get_random_string(12)
+                
                 user = Custom_User.objects.create(
                     email=email,
                     first_name=first_name,
                     last_name=last_name,
                     role=role,
                     username=email.split("@")[0],
-                    password=make_password(random_password ),
+                    password=make_password(password),
                 )
 
                 send_mail(
                     "Your College Account",
-                    f"Hello {first_name},\nYour temporary password is: {random_password}\nPlease reset it after logging in.",
+                    f"Hello {first_name},\nYour temporary password is: {password}\nPlease reset it after logging in.",
                     "admin@college.edu",
                     [email],
                     fail_silently=False,
@@ -110,11 +120,21 @@ class UploadedCSVAdmin(admin.ModelAdmin):
             messages.success(request, f"CSV processed! Created: {created_count}, Skipped: {skipped_count}")
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
+    def process_csv_button(self, obj):
+        """Button to trigger CSV processing"""
+        url = reverse("admin:process_csv", args=[obj.id])
+        return format_html('<a class="button" href="{}">Process</a>', url)
+
+    process_csv_button.short_description = "Process CSV"
+
     def get_urls(self):
+        """Adds a custom URL for processing CSV"""
         urls = super().get_urls()
         custom_urls = [
-            path("<int:object_id>/process/", self.admin_site.admin_view(self.process_csv), name="process_csv"),
+            path("uploadedcsv/<int:object_id>/process/", self.admin_site.admin_view(self.process_csv), name="process_csv"),
         ]
         return custom_urls + urls
 
 admin.site.register(UploadedCSV, UploadedCSVAdmin)
+admin.site.register(StudentProfile)
+admin.site.register(FacultyProfile)

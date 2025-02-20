@@ -43,9 +43,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "login",
     'corsheaders',
-    'authtools'
+    'authtools',
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
-
+REST_FRAMEWORK = { 
+    'DEFAULT_AUTHENTICATION_CLASSES': [ 
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+    ], 
+}
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
@@ -98,6 +104,18 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': 'HHaYwsjescEtUpTVzlmoajtpZJZHiFyB',
+#         'HOST': 'postgres.railway.internal',
+#         'PORT': '5432',
+#     }
+# }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -147,3 +165,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'omwasu20@gmail.com'  # Your email
 EMAIL_HOST_PASSWORD = 'dtbr nncl vqjk bqdz'  # App password (not your email password)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),  # Short-lived access token
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Long-lived refresh token
+    "ROTATE_REFRESH_TOKENS": True,  # Generate new refresh tokens on refresh
+    "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

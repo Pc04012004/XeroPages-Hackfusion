@@ -90,10 +90,6 @@ class Custom_User(AbstractUser):
 
     def __str__(self):
         return f"{self.email} - {self.role}"
-    
-
-from django.db import models
-import os
 
 class UploadedCSV(models.Model):
     file = models.FileField(upload_to="csv_uploads/")
@@ -105,3 +101,38 @@ class UploadedCSV(models.Model):
     def __str__(self):
         return f"CSV File: {self.filename()} - {self.uploaded_at}"
 
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=255)
+    dob = models.DateField()
+    email = models.EmailField(unique=True)
+    registration_no = models.CharField(max_length=100, unique=True)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    address = models.CharField(max_length=255)
+    course = models.CharField(max_length=50)
+    department = models.CharField(max_length=100)
+    year_of_study = models.IntegerField()
+    phone_no = models.CharField(max_length=15)
+    hostel_status = models.BooleanField()
+    profile_picture = models.ImageField(upload_to='profiles/students/', null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
+
+class FacultyProfile(models.Model):
+    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    dob = models.DateField()
+    email = models.EmailField(unique=True)
+    phone_no = models.CharField(max_length=15)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    address = models.CharField(max_length=255)
+    profile_picture = models.ImageField(upload_to='profiles/faculty/', null=True, blank=True)
+    designation = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    qualification = models.CharField(max_length=255)
+    years_of_experience = models.IntegerField()
+
+    def __str__(self):
+        return self.name
