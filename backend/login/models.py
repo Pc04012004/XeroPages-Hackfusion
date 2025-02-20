@@ -21,29 +21,29 @@ def generate_random_password(length=12):
 class CustomUserManager(BaseUserManager):
     """Custom manager for our Custom_User model."""
 
-    # def create_user(self, email, first_name, last_name, role, password=None, **extra_fields):
-    #     print("2")
-    #     if not email:
-    #         raise ValueError("The Email field is required.")
+    def create_user(self, email, first_name, last_name, role, password=None, **extra_fields):
+        print("2")
+        if not email:
+            raise ValueError("The Email field is required.")
         
-    #     email = self.normalize_email(email)
-    #     username = generate_random_username()  # Generate a username
+        email = self.normalize_email(email)
+        username = generate_random_username()  # Generate a username
 
-    #     # Generate a random password if not provided
-    #     if not password:
-    #         password = generate_random_password()
+        # Generate a random password if not provided
+        if not password:
+            password = generate_random_password()
 
-    #     user = self.model(
-    #         email=email,
-    #         username=username,
-    #         first_name=first_name,
-    #         last_name=last_name,
-    #         role=role,
-    #         **extra_fields
-    #     )
-    #     user.set_password(password)
-    #     user.save(using=self._db)
-    #     return user
+        user = self.model(
+            email=email,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
     def create_superuser(self, email, first_name, last_name, role, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
