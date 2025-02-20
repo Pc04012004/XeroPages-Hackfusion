@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path("auth/logout/", views.LogoutView.as_view(), name="logout"),
+    path("/logout/", views.LogoutView.as_view(), name="logout"),
     path('studentProfile/',views.CreateStudentProfileView.as_view()),
     path('studentProfile/<int:pk>/',views.StudentProfileDetailView.as_view()),
     path('faculty/profile/', views.FacultyProfileView.as_view(), name='faculty-profile'),

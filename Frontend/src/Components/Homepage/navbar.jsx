@@ -136,7 +136,7 @@ function NavBar() {
         </div>
         <Bell className="w-6 h-6 cursor-pointer" />
         <ShoppingCart className="w-6 h-6 cursor-pointer" />
-        <User className="w-6 h-6 cursor-pointer" />
+        <User className="w-6 h-6 cursor-pointer" onClick={() => navigate('/home/profile')} />
       </div>
 
       {/* Common Dropdown Menu */}
