@@ -104,7 +104,18 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://:Oc5t0fm8ano4veVf2U8xDAfqY1dI4Qgx@redis-18024.c264.ap-south-1-1.ec2.redns.redis-cloud.com:18024/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
+# CELERY_BROKER_URL = 'redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
+# CELERY_RESULT_BACKEND='redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

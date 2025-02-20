@@ -87,12 +87,39 @@ class Candidate(models.Model):
     def _str_(self):
         return f"{self.name} - {self.position_applied.position}"
 
-# class Voter(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=100)
-#     department = models.CharField(max_length=100)
-#     year = models.IntegerField()
-#     registration_number = models.CharField(max_length=50, unique=True)
+class Voter(models.Model):
+    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    post= models.ForeignKey(ElectionPost,on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    year = models.IntegerField()
+    registration_number = models.CharField(max_length=50, unique=True)
+    verified=models.BooleanField(default=False)
 
-#     def _str_(self):
-#         return f"{self.name} ({self.registration_number})"
+    def _str_(self):
+        return f"{self.name} ({self.registration_number})"
+    
+class VoteCount(models.Model):
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    post = models.ForeignKey(ElectionPost, on_delete=models.CASCADE)  # Track post votes
+    vote_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.candidate.user.full_name} - {self.post.position}: {self.vote_count} votes"
+
+
+class VoterVote(models.Model):
+    """
+    Tracks which voter has voted for which election post.
+    This prevents multiple votes for the same post but allows voting in different posts.
+    """
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)  # Voter who cast the vote
+    post = models.ForeignKey(ElectionPost, on_delete=models.CASCADE)  # Post they voted for
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)  # Candidate they voted for
+    timestamp = models.DateTimeField(auto_now_add=True)  # When the vote was cast
+
+    class Meta:
+        unique_together = ('voter', 'post')  # Ensures voter can vote only once per post
+
+    def __str__(self):
+        return f"{self.voter.name} voted for {self.candidate.user.full_name} in {self.post.position}"

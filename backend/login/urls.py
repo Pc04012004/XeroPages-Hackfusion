@@ -11,5 +11,4 @@ urlpatterns = [
     path('StudentProfileDetail/',views.StudentProfileDetailView.as_view()),
     path('faculty/profile/', views.FacultyProfileView.as_view(), name='faculty-profile'),
     path('faculty/profile/update/', views.UpdateFacultyProfile.as_view(), name='faculty-profile-update'), 
-    
 ]
