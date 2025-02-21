@@ -88,7 +88,7 @@ class Candidate(models.Model):
         return f"{self.name} - {self.position_applied.position}"
 
 class Voter(models.Model):
-    user = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Custom_User, on_delete=models.CASCADE)
     post= models.ForeignKey(ElectionPost,on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     department = models.CharField(max_length=100)

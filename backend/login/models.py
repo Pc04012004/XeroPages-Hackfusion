@@ -69,6 +69,7 @@ class Custom_User(AbstractUser):
         ("student", "Student"),
         ("faculty", "Faculty"),
         ("hod", "Head of Department"),
+        ("sport_head", "Sport Head"),
         ("dean_student", "Dean of Student"),
         ("dean_finance", "Dean of Finance"),
         ("director", "Director"),
@@ -153,6 +154,7 @@ class FacultyProfile(models.Model):
     department = models.CharField(max_length=100)
     qualification = models.CharField(max_length=255)
     years_of_experience = models.IntegerField()
-
+    faculty_coordinator = models.CharField(max_length=100,default="None")
+ 
     def __str__(self):
         return self.name

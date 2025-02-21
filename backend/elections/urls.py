@@ -9,7 +9,6 @@ urlpatterns = [
     path("candidates/dean-approval/<int:pk>/", DeanApprovalView.as_view(), name="dean_approval"),
     path("candidates/director-approval/<int:pk>/", DirectorApprovalView.as_view(), name="director_approval"),
     path("candidates/approved/", ApprovedCandidatesPublicView.as_view(), name="approved_candidates"),
-
     path("voterRegister/",VoterRegistrationView.as_view()),
     path("vote/", CastVoteView.as_view(), name="cast-vote"), 
     path("leaderboard/", LeaderboardView.as_view(), name="leaderboard"),  # API to fetch leaderboard

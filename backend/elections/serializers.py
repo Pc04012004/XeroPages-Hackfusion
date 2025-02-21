@@ -19,7 +19,7 @@ class CandidateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Candidate
-        fields = '_all_'  
+        fields = '__all__'  
         read_only_fields = ['dean_approved', 'director_approved']  
 
     def get_meets_eligibility(self, obj):  
