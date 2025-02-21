@@ -200,7 +200,7 @@ function ElectionHome() {
                   animate="visible"
                   transition={{ delay: index * 0.2, duration: 0.5 }}
                   className="inline-block w-96 bg-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  onClick={() => handleCardClick(`/elections/${post.title.toLowerCase()}`)}
+                  onClick={() => handleCardClick(`/elections/${post.title}`)}
                 >
                   <div className="p-6">
                     <h3 className="text-2xl font-bold text-center mb-4">{post.title}</h3>

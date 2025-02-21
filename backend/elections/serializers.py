@@ -15,7 +15,7 @@ class CandidateSerializer_d(serializers.ModelSerializer):
 
 
 class CandidateSerializer(serializers.ModelSerializer):
-    # meets_eligibility = serializers.SerializerMethodField()  
+    meets_eligibility = serializers.SerializerMethodField()  
 
     class Meta:
         model = Candidate

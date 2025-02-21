@@ -29,7 +29,7 @@ function Home() {
         }
 
         let response;
-        if (parsedUser.role === "faculty") {
+        if (["faculty", "dean_student"].includes(parsedUser?.role)) {
           // Fetch faculty profile
           response = await axios.get(
             `http://127.0.0.1:8000/auth/faculty/profile/`, // Ensure the correct endpoint
@@ -74,7 +74,7 @@ function Home() {
 
           if (parsedUser?.role === "student") {
             navigate("/home/profile/student");
-          } else if (parsedUser?.role === "faculty") {
+          } else if (["faculty", "dean_student"].includes(parsedUser?.role)) {
             navigate("/home/profile/faculty");
           }
         } else {

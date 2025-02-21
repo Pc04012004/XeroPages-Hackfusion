@@ -36,7 +36,7 @@ class UserAdmin(admin.ModelAdmin):
             random_password = get_random_string(12)  # Generate a random password
             obj.set_password(random_password)  # Set the password
             obj.username = obj.email.split("@")[0]  # Use email prefix as username
-
+             
             # Send email with login details
             send_mail(
                 "Your New Account Details",

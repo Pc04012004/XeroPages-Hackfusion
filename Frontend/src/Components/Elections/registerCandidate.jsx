@@ -5,23 +5,24 @@ import axios from 'axios'; // Import axios for API calls
 function RegisterCandidate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    user: '',
     name: '',
-    collegeEmail: '',
-    registrationNumber: '',
+    registration_number: '',
     department: '',
     year: '',
-    positionApplied: '',
-    isCrOrSicMember: false,
-    attendanceCurrentSemester: 0,
-    attendancePreviousYear: 0,
+    position_applied: '',
+    is_cr_or_sic_member: false,
+    attendance_current_semester: 0,
+    attendance_previous_year: 0,
     cgpa: 0,
-    noBacklogs: true,
-    noDisciplinaryActions: true,
-    iutParticipation: false,
-    sportsCaptainOrCoordinator: false,
-    isHostelResident: false,
-    proofDocument: null,
-    manifesto: '', // Manifesto as text input
+    no_backlogs: true,
+    no_disciplinary_actions: true,
+    iut_participation: false,
+    sports_captain_or_coordinator: false,
+    is_hostel_resident: false,
+    manifesto: '',
+    dean_approved: false,
+    director_approved: false, 
   });
 
   const [electionPosts, setElectionPosts] = useState([]); // State to store election posts
@@ -33,6 +34,9 @@ function RegisterCandidate() {
     const fetchElectionPosts = async () => {
       try {
         const accessToken = localStorage.getItem('access_token'); // Retrieve the access token from localStorage
+        const user = JSON.parse(localStorage.getItem("user"));
+        const userId = user.user_id;
+        setFormData({...formData, user: userId});        
         if (!accessToken) {
           throw new Error('No access token found. Please log in.');
         }
@@ -62,44 +66,39 @@ function RegisterCandidate() {
     });
   };
 
-  const handleFileUpload = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.files[0] });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formDataToSend = new FormData();
-    for (const key in formData) {
-      formDataToSend.append(key, formData[key]);
-    }
-
+  
     try {
-      const accessToken = localStorage.getItem('accessToken'); // Retrieve the access token from localStorage
+      const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
         throw new Error('No access token found. Please log in.');
       }
-
-      const response = await fetch('/api/register-candidate', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`, // Include the access token in the request headers
-        },
-        body: formDataToSend,
-      });
-
-      if (response.ok) {
+  
+      const response = await axios.post(
+        'http://127.0.0.1:8000/election/candidates/register/',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json', // Set the content type to JSON
+          },
+        }
+      );
+  
+      if (response.status === 200 || response.status === 201) {
         alert('Candidate registration successful!');
-        navigate('/');
+        navigate('/elections');
       } else {
         alert('Registration failed. Please try again.');
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      // console.error('Error:', error);
+      // alert('An error occurred. Please try again.');
+      console.log(response.data);
     }
   };
-
   if (loading) {
     return <div className="text-center mt-8">Loading election posts...</div>; // Show loading message
   }
@@ -125,22 +124,11 @@ function RegisterCandidate() {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">College Email:</label>
-            <input
-              type="email"
-              name="collegeEmail"
-              value={formData.collegeEmail}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              required
-            />
-          </div>
-          <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2">Registration Number:</label>
             <input
               type="text"
-              name="registrationNumber"
-              value={formData.registrationNumber}
+              name="registration_number"
+              value={formData.registration_number}
               onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
@@ -171,15 +159,15 @@ function RegisterCandidate() {
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2">Election Position:</label>
             <select
-              name="positionApplied"
-              value={formData.positionApplied}
+              name="position_applied"
+              value={formData.position_applied}
               onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
             >
               <option value="">Select Position</option>
               {electionPosts.map((post) => (
-                <option key={post.id} value={post.position}>
+                <option key={post.id} value={post.id}>
                   {post.position} - {post.description}
                 </option>
               ))}
@@ -189,8 +177,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">Are you a CR or SIC member?</label>
             <input
               type="checkbox"
-              name="isCrOrSicMember"
-              checked={formData.isCrOrSicMember}
+              name="is_cr_or_sic_member"
+              checked={formData.is_cr_or_sic_member}
               onChange={handleInputChange}
               className="mr-2"
             />
@@ -199,8 +187,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">Current Semester Attendance (%):</label>
             <input
               type="number"
-              name="attendanceCurrentSemester"
-              value={formData.attendanceCurrentSemester}
+              name="attendance_current_semester"
+              value={formData.attendance_current_semester}
               onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
@@ -210,8 +198,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">Previous Year Attendance (%):</label>
             <input
               type="number"
-              name="attendancePreviousYear"
-              value={formData.attendancePreviousYear}
+              name="attendance_previous_year"
+              value={formData.attendance_previous_year}
               onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
@@ -232,8 +220,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">No Backlogs:</label>
             <input
               type="checkbox"
-              name="noBacklogs"
-              checked={formData.noBacklogs}
+              name="no_backlogs"
+              checked={formData.no_backlogs}
               onChange={handleInputChange}
               className="mr-2"
             />
@@ -242,8 +230,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">No Disciplinary Actions:</label>
             <input
               type="checkbox"
-              name="noDisciplinaryActions"
-              checked={formData.noDisciplinaryActions}
+              name="no_disciplinary_actions"
+              checked={formData.no_disciplinary_actions}
               onChange={handleInputChange}
               className="mr-2"
             />
@@ -252,8 +240,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">IUT Participation:</label>
             <input
               type="checkbox"
-              name="iutParticipation"
-              checked={formData.iutParticipation}
+              name="iut_participation"
+              checked={formData.iut_participation}
               onChange={handleInputChange}
               className="mr-2"
             />
@@ -262,8 +250,8 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">Sports Captain or Coordinator:</label>
             <input
               type="checkbox"
-              name="sportsCaptainOrCoordinator"
-              checked={formData.sportsCaptainOrCoordinator}
+              name="sports_captain_or_coordinator"
+              checked={formData.sports_captain_or_coordinator}
               onChange={handleInputChange}
               className="mr-2"
             />
@@ -272,21 +260,10 @@ function RegisterCandidate() {
             <label className="block text-gray-700 text-sm font-bold mb-2">Hostel Resident:</label>
             <input
               type="checkbox"
-              name="isHostelResident"
-              checked={formData.isHostelResident}
+              name="is_hostel_resident"
+              checked={formData.is_hostel_resident}
               onChange={handleInputChange}
               className="mr-2"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Upload Proof Document:</label>
-            <input
-              type="file"
-              name="proofDocument"
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              required
             />
           </div>
           <div className="mb-6">
