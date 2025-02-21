@@ -10,7 +10,7 @@ class ElectionPost(models.Model):
     Eligibility = models.TextField()
     candidate_registration_deadline = models.DateTimeField()  # Deadline for candidates to register
     voting_day = models.DateTimeField()  # The day when voting will take place
-    dean_approved = models.BooleanField(default=False)
+    dean_approved = models.BooleanField(default=True)
     director_approved = models.BooleanField(default=False)
 
     def approve_by_dean(self):
@@ -46,7 +46,7 @@ class Candidate(models.Model):
     is_hostel_resident = models.BooleanField(default=False)
     proof_document = models.FileField(upload_to='candidate_proofs/', blank=True, null=True)
     manifesto = models.TextField()
-    dean_approved = models.BooleanField(default=False)
+    dean_approved = models.BooleanField(default=True)
     director_approved = models.BooleanField(default=False)
     date_applied = models.DateTimeField(auto_now_add=True)
 
@@ -122,4 +122,4 @@ class VoterVote(models.Model):
         unique_together = ('voter', 'post')  # Ensures voter can vote only once per post
 
     def __str__(self):
-        return f"{self.voter.name} voted for {self.candidate.user.full_name} in {self.post.position}"
+        return f"{self.voter.name}"

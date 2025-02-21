@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "login",
     "elections",
+    "Auto_Leave",
+    "CampusFacility",
+    "Complaints",
     'corsheaders',
     'authtools',
     'rest_framework',
@@ -99,6 +102,7 @@ CACHES = {
     }
 }
 
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -109,26 +113,15 @@ CACHES = {
 #         'PORT': '5432',
 #     }
 # }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        }
+        "NAME": BASE_DIR / "db.sqlite3"
+    }
 }
 
 # CELERY_BROKER_URL = 'redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
 # CELERY_RESULT_BACKEND='redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'railway',
-#         'USER': 'postgres',
-#         'PASSWORD': 'HHaYwsjescEtUpTVzlmoajtpZJZHiFyB',
-#         'HOST': 'postgres.railway.internal',
-#         'PORT': '5432',
-#     }
-# }
 
 
 # Password validation

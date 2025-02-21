@@ -61,3 +61,15 @@ class IsDirector(BasePermission):
     """Allows access only to directors."""
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == 'director'
+    
+class IsDoctor(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'doctor'
+
+class IsSecurity(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'security'
+
+class IsWarden(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'warden'
