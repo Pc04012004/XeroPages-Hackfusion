@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ElectionPostListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated,IsDean_s]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     
@@ -227,7 +227,7 @@ class CastVoteView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         candidate_id = request.data.get("candidate")
         candidate = get_object_or_404(Candidate, id=candidate_id)
-        post = candidate.post  
+        post = candidate.position_applied 
 
         voter = Voter.objects.filter(user=request.user).first()
         if not voter:

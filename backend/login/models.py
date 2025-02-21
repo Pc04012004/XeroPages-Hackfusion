@@ -1,4 +1,5 @@
 
+import os
 import random
 import string
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -21,7 +22,7 @@ def generate_random_password(length=12):
 class CustomUserManager(BaseUserManager):
     """Custom manager for our Custom_User model."""
 
-    def create_user(self, email, first_name, last_name, role, password=None, **extra_fields):
+    def create_user(self, email, full_name ,role, password=None, **extra_fields):
         print("2")
         if not email:
             raise ValueError("The Email field is required.")
@@ -36,8 +37,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(
             email=email,
             username=username,
-            first_name=first_name,
-            last_name=last_name,
+            full_name=full_name,
             role=role,
             **extra_fields
         )
@@ -45,14 +45,25 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, first_name, last_name, role, password=None, **extra_fields):
+    def create_superuser(self, email, full_name, role, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        return self.create_user(email, first_name, last_name, role, password, **extra_fields)
+        return self.create_user(email, full_name, role, password, **extra_fields)
 
 
 class Custom_User(AbstractUser):
     """Custom User model using email instead of username."""
+    DEPARTMENT_CHOICES = [
+        ('Admin', 'Administration'),
+        ('CSE', 'Computer Science and Engineering'),
+        ('ECE', 'Electronics and Communication Engineering'),
+        ('EEE', 'Electrical and Electronics Engineering'),
+        ('ME', 'Mechanical Engineering'),
+        ('CE', 'Civil Engineering'),
+        ('IT', 'Information Technology'),
+        ('Mathematics', 'Mathematics'),
+    ]
+
 
     ROLE_CHOICES = [
         ("student", "Student"),
@@ -61,18 +72,25 @@ class Custom_User(AbstractUser):
         ("dean_student", "Dean of Student"),
         ("dean_finance", "Dean of Finance"),
         ("director", "Director"),
+        ("doctor", "Doctor"),
+        ("warden", "Warden"),
+        ("security)","Security Guard)"),
         ("admin", "Admin"),
     ]
 
     email = models.EmailField(unique=True)  # Required
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    full_name = models.CharField(max_length=30,default="empty")
     role = models.CharField(max_length=50, choices=ROLE_CHOICES)
+    department = models.CharField(
+        max_length=50,
+        choices=DEPARTMENT_CHOICES,
+        default='Admin'
+    )
 
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)  # Auto-generated
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "role"]
+    REQUIRED_FIELDS = ["full_name", "role"]
 
     objects = CustomUserManager()
 
@@ -107,16 +125,18 @@ class StudentProfile(models.Model):
     full_name = models.CharField(max_length=255)
     dob = models.DateField()
     email = models.EmailField(unique=True)
+    phone_no = models.CharField(max_length=15)
     registration_no = models.CharField(max_length=100, unique=True)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     address = models.CharField(max_length=255)
     course = models.CharField(max_length=50)
     department = models.CharField(max_length=100)
     year_of_study = models.IntegerField()
-    phone_no = models.CharField(max_length=15)
+    parent_email=models.EmailField(unique=True,default="not found")
+    Parent_phone_no = models.CharField(max_length=15,default="not found")
     hostel_status = models.BooleanField()
     profile_picture = models.ImageField(upload_to='profiles/students/', null=True, blank=True)
-
+    
     def __str__(self):
         return self.full_name
 

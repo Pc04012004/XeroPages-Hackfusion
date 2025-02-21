@@ -22,11 +22,11 @@ class UserAdmin(admin.ModelAdmin):
     """Custom UserAdmin that generates a password and emails it to the user."""
 
     add_form = UserCreationForm
-    list_display = ("email", "first_name", "last_name", "role", "is_staff", "is_active")
-    search_fields = ("email", "first_name", "last_name")
+    list_display = ("email", "full_name", "department", "role", "is_staff", "is_active")
+    search_fields = ("email", "full_name", "last_name")
     ordering = ("email",)
     fieldsets  = (
-        (None, {"fields": ("email", "first_name", "last_name", "role")}),
+        (None, {"fields": ("email", "full_name", "department", "role")}),
         ("Permissions", {"fields": ("is_staff", "is_active")}),
     )
 
@@ -40,7 +40,7 @@ class UserAdmin(admin.ModelAdmin):
             # Send email with login details
             send_mail(
                 "Your New Account Details",
-                f"Hello {obj.first_name},\n\nYour account has been created.\n\n"
+                f"Hello {obj.full_name},\n\nYour account has been created.\n\n"
                 f"Username: {obj.username}\n"
                 f"Password: {random_password}\n\n"
                 "Please log in and change your password.",
@@ -81,9 +81,9 @@ class UploadedCSVAdmin(admin.ModelAdmin):
 
             for row in reader:
                 try:
-                    first_name, last_name, email, role = row
+                    full_name, email, role, department = row
                 except ValueError:
-                    messages.warning(request, "Incorrect CSV format. Expected 4 columns: first_name, last_name, email, role.")
+                    messages.warning(request, "Incorrect CSV format. Expected 4 columns: full_name, last_name, email, role.")
                     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
                 if not email.endswith("@sggs.ac.in"):
@@ -100,16 +100,16 @@ class UploadedCSVAdmin(admin.ModelAdmin):
                 
                 user = Custom_User.objects.create(
                     email=email,
-                    first_name=first_name,
-                    last_name=last_name,
+                    full_name=full_name,
                     role=role,
+                    department=department,
                     username=email.split("@")[0],
                     password=make_password(password),
                 )
 
                 send_mail(
                     "Your College Account",
-                    f"Hello {first_name},\nYour temporary password is: {password}\nPlease reset it after logging in.",
+                    f"Hello {full_name},\nYour temporary password is: {password}\nPlease reset it after logging in.",
                     "admin@college.edu",
                     [email],
                     fail_silently=False,
