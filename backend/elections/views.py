@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ElectionPostListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated,IsDean_s]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     
@@ -134,7 +134,8 @@ class ApprovedCandidatesPublicView(generics.ListAPIView):
     - Publicly accessible.
     """
     queryset = Candidate.objects.filter(dean_approved=True, director_approved=True)
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateSerializer_d
+
 
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
@@ -147,12 +148,13 @@ class VoterRegistrationView(generics.ListCreateAPIView):
     """
     API for voter registration:
     - Only students can register.
-    - Prevents duplicate registrations.
+    - Prevents duplicate registrations for the same post.
     - Fetches all registered voters (GET request).
     """
-    
+
     permission_classes = [permissions.IsAuthenticated, IsStudent]
     authentication_classes = [JWTAuthentication]
+
     def get(self, request, *args, **kwargs):
         """
         Fetch all registered voters.
@@ -174,16 +176,20 @@ class VoterRegistrationView(generics.ListCreateAPIView):
         year = request.data.get("year")
         registration_number = request.data.get("registration_number")
 
-        # Check if the user has already registered
-        if Voter.objects.filter(user=request.user).exists():
-            return Response({"error": "You have already registered as a voter."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Check if registration number is unique
-        if Voter.objects.filter(registration_number=registration_number).exists():
-            return Response({"error": "This registration number is already in use."}, status=status.HTTP_400_BAD_REQUEST)
+        # Check if the user has already registered for this post
+        existing_voter = Voter.objects.filter(user=request.user, post=election_post_id).first()
+        if existing_voter:
+            return Response(
+                {"error": f"You have already registered as a voter for the post '{existing_voter.post.title}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Validate ElectionPost
         election_post = get_object_or_404(ElectionPost, pk=election_post_id)
+
+        # Optional: Ensure registration number is unique across all voters
+        # if Voter.objects.filter(registration_number=registration_number).exists():
+        #     return Response({"error": "This registration number is already in use."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create and save voter record
         voter = Voter.objects.create(
@@ -197,6 +203,7 @@ class VoterRegistrationView(generics.ListCreateAPIView):
         voter.save()
 
         return Response(VoterSerializer(voter).data, status=status.HTTP_201_CREATED)
+
     
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response

@@ -1,65 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // Import Framer Motion
+import axios from 'axios'; // Import Axios
 import NavBar from '../Homepage/navbar';
 import Footer from '../Homepage/footer';
 
-// JSON data defined directly in the component file
-const initialElectionData = {
-  electionPosts: [
-    {
-      title: "CS",
-      description: "Class Representative for Computer Science Department",
-      electionDate: "2025-03-10",
-    },
-    {
-      title: "QS",
-      description: "Class Representative for Quality Sciences Department",
-      electionDate: "2025-03-12",
-    },
-    {
-      title: "SS",
-      description: "Class Representative for Social Sciences Department",
-      electionDate: "2025-03-14",
-    },
-    {
-      title: "TS",
-      description: "Class Representative for Technical Sciences Department",
-      electionDate: "2025-03-16",
-    },
-    {
-      title: "Mess",
-      description: "Mess Committee Representative",
-      electionDate: "2025-03-18",
-    },
-  ],
-  liveNominees: [
-    {
-      name: "Sarthak Manapure",
-      status: "Approved",
-      post: "CS",
-    },
-    {
-      name: "Prasad Chede",
-      status: "Approved",
-      post: "GS",
-    },
-    {
-      name: "John Doe",
-      status: "Pending",
-      post: "QS",
-    },
-    {
-      name: "Jane Smith",
-      status: "Approved",
-      post: "SS",
-    },
-  ],
-};
-
 function ElectionHome() {
   const navigate = useNavigate();
-  const [electionData, setElectionData] = useState(initialElectionData);
+  const [electionPosts, setElectionPosts] = useState([]); // State for election posts
+  const [liveNominees, setLiveNominees] = useState([]); // State for live nominees
   const [isAdmin, setIsAdmin] = useState(true); // Simulate admin access (can be fetched from backend)
   const [showForm, setShowForm] = useState(false); // State to toggle the form
   const [newPost, setNewPost] = useState({
@@ -67,6 +16,62 @@ function ElectionHome() {
     description: '',
     electionDate: '',
   });
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+
+  // Fetch election posts and live nominees from the API
+  useEffect(() => {
+    const fetchElectionData = async () => {
+      try {
+        const token = localStorage.getItem('access_token'); // Get access token from localStorage
+
+        if (!token) {
+          throw new Error('Access token not found. Please log in again.');
+        }
+
+        // Fetch election posts
+        const postsResponse = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include access token in headers
+          },
+        });
+        const posts = postsResponse.data.map((post) => ({
+          title: post.position,
+          description: post.description,
+          electionDate: post.voting_day.split('T')[0], // Extract date from ISO string
+        }));
+        setElectionPosts(posts); // Update state with fetched posts
+
+        // Fetch approved candidates (live nominees)
+        const nomineesResponse = await axios.get('http://127.0.0.1:8000/election/candidates/approved/', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include access token in headers
+          },
+        });
+        const nominees = nomineesResponse.data.map((nominee) => ({
+          id: nominee.id,
+          name: nominee.name,
+          status: nominee.dean_approved && nominee.director_approved ? 'Approved' : 'Pending',
+          post: nominee.position_applied.position, // Access the position applied by the nominee
+        }));
+        setLiveNominees(nominees); // Update state with fetched nominees
+
+        setLoading(false); // Set loading to false
+      } catch (err) {
+        if (err.response?.status === 401) {
+          // Unauthorized (invalid or missing token)
+          setError('Unauthorized. Please log in again.');
+          navigate('/login'); // Redirect to login page
+        } else {
+          setError('Failed to fetch election data.'); // Set error message
+          console.error(err); // Log the error for debugging
+        }
+        setLoading(false); // Set loading to false
+      }
+    };
+
+    fetchElectionData();
+  }, [navigate]);
 
   const handleCardClick = (path) => {
     navigate(path);
@@ -81,8 +86,8 @@ function ElectionHome() {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    const updatedPosts = [...electionData.electionPosts, newPost];
-    setElectionData({ ...electionData, electionPosts: updatedPosts });
+    const updatedPosts = [...electionPosts, newPost];
+    setElectionPosts(updatedPosts); // Update state with new post
     setNewPost({ title: '', description: '', electionDate: '' }); // Reset form
     setShowForm(false); // Close the form
   };
@@ -92,6 +97,14 @@ function ElectionHome() {
     hidden: { opacity: 0, x: -50 }, // Start off-screen to the left
     visible: { opacity: 1, x: 0 }, // Slide in to the center
   };
+
+  if (loading) {
+    return <div className="text-center p-8">Loading...</div>; // Show loading state
+  }
+
+  if (error) {
+    return <div className="text-center p-8 text-red-600">{error}</div>; // Show error state
+  }
 
   return (
     <>
@@ -116,14 +129,14 @@ function ElectionHome() {
               Register as Candidate
             </button>
             {/* Admin Button */}
-            {isAdmin && (
+            {/* {isAdmin && (
               <button
                 onClick={() => setShowForm(!showForm)}
                 className="bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition-colors duration-300"
               >
                 Upload Election Posts
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -179,7 +192,7 @@ function ElectionHome() {
           <h2 className="text-2xl font-semibold text-center mb-6">Election Posts:</h2>
           <div className="overflow-x-auto whitespace-nowrap pb-4 scrollbar-hide">
             <div className="inline-flex space-x-6">
-              {electionData.electionPosts.map((post, index) => (
+              {electionPosts.map((post, index) => (
                 <motion.div
                   key={index}
                   variants={cardVariants}
@@ -187,7 +200,7 @@ function ElectionHome() {
                   animate="visible"
                   transition={{ delay: index * 0.2, duration: 0.5 }}
                   className="inline-block w-96 bg-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  onClick={() => handleCardClick(`/elections/${post.title.toLowerCase()}`)}
+                  onClick={() => handleCardClick(`/elections/${post.title}`)}
                 >
                   <div className="p-6">
                     <h3 className="text-2xl font-bold text-center mb-4">{post.title}</h3>
@@ -205,7 +218,7 @@ function ElectionHome() {
           <h2 className="text-2xl font-semibold text-center mb-6">Live Election Nominees:</h2>
           <div className="overflow-x-auto whitespace-nowrap pb-4 scrollbar-hide">
             <div className="inline-flex space-x-6">
-              {electionData.liveNominees.map((nominee, index) => (
+              {liveNominees.map((nominee, index) => (
                 <motion.div
                   key={index}
                   variants={cardVariants}
@@ -213,13 +226,11 @@ function ElectionHome() {
                   animate="visible"
                   transition={{ delay: index * 0.2, duration: 0.5 }}
                   className="inline-block w-96 bg-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  //onClick={() => handleCardClick(`/elections/nominee/${nominee.name}`)} // Navigate to ElectionNominee
                 >
                   <div className="p-6">
                     <h3 className="text-2xl font-bold mb-4">{nominee.name}</h3>
                     <p className="text-gray-600">Status: {nominee.status}</p>
-                    <p className="text-gray-600">Post: {nominee.post}</p>
-                    {/* Vote Now Button inside each card */}
+                    <p className="text-gray-600">Post: {nominee.post}</p> {/* Display the position applied */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent card click event from firing

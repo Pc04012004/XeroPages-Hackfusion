@@ -29,7 +29,7 @@ function Home() {
         }
 
         let response;
-        if (parsedUser.role === "faculty") {
+        if (["faculty", "dean_student"].includes(parsedUser?.role)) {
           // Fetch faculty profile
           response = await axios.get(
             `http://127.0.0.1:8000/auth/faculty/profile/`, // Ensure the correct endpoint
@@ -48,7 +48,7 @@ function Home() {
         } else if (parsedUser.role === "student") {
           // Fetch student profile
           response = await axios.get(
-            `http://127.0.0.1:8000/auth/studentProfile/${userId}/`, // Ensure the correct endpoint
+            `http://127.0.0.1:8000/auth/StudentProfileDetail/`, // Ensure the correct endpoint
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -68,13 +68,13 @@ function Home() {
         setUser(response.data); // Set user data
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
-          // Ensure user exists before checking role
+          // If the student profile is not found, navigate to the student profile creation page
           const storedUser = localStorage.getItem("user");
           const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
           if (parsedUser?.role === "student") {
             navigate("/home/profile/student");
-          } else if (parsedUser?.role === "faculty") {
+          } else if (["faculty", "dean_student"].includes(parsedUser?.role)) {
             navigate("/home/profile/faculty");
           }
         } else {
