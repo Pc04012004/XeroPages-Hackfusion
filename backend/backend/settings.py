@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "Auto_Leave",
     "CampusFacility",
     "Complaints",
+    'doctorbooking',
     "EventApproval",
     'channels',
     'django_celery_beat',

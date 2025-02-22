@@ -8,17 +8,18 @@ function StudentEditProfile() {
     full_name: "",
     dob: "",
     email: "",
+    phone_no: "",
+    section: "A", // Default to 'A'
     registration_no: "",
-    gender: "Male",
+    gender: "Male", // Default to 'Male'
     address: "",
     course: "",
     department: "",
     year_of_study: "",
-    phone_no: "",
+    parent_email: "",
+    Parent_phone_no: "",
     hostel_status: false,
     profile_picture: null,
-    parent_email: "", // New field
-    Parent_phone_no: "", // New field
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -101,7 +102,7 @@ function StudentEditProfile() {
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-2xl font-bold mb-6">Register Student</h1>
+        <h1 className="text-2xl font-bold mb-6">Edit Student Profile</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name and DOB */}
@@ -130,7 +131,7 @@ function StudentEditProfile() {
             </div>
           </div>
 
-          {/* Email and Registration No */}
+          {/* Email and Phone No */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -142,6 +143,34 @@ function StudentEditProfile() {
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input
+                type="tel"
+                name="phone_no"
+                value={formData.phone_no}
+                onChange={handleChange}
+                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Section and Registration No */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Section</label>
+              <select
+                name="section"
+                value={formData.section}
+                onChange={handleChange}
+                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+                required
+              >
+                <option value="A">A</option>
+                <option value="B">B</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Registration No</label>
@@ -156,7 +185,7 @@ function StudentEditProfile() {
             </div>
           </div>
 
-          {/* Gender and Phone No */}
+          {/* Gender and Hostel Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Gender</label>
@@ -173,14 +202,13 @@ function StudentEditProfile() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <label className="block text-sm font-medium text-gray-700">Hostel Status</label>
               <input
-                type="tel"
-                name="phone_no"
-                value={formData.phone_no}
+                type="checkbox"
+                name="hostel_status"
+                checked={formData.hostel_status}
                 onChange={handleChange}
-                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
-                required
+                className="mt-1 block p-1.5 border border-gray-300 rounded-md"
               />
             </div>
           </div>
@@ -250,29 +278,17 @@ function StudentEditProfile() {
             </div>
           </div>
 
-          {/* Year of Study and Hostel Status */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Year of Study</label>
-              <input
-                type="number"
-                name="year_of_study"
-                value={formData.year_of_study}
-                onChange={handleChange}
-                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Hostel Status</label>
-              <input
-                type="checkbox"
-                name="hostel_status"
-                checked={formData.hostel_status}
-                onChange={handleChange}
-                className="mt-1 block p-1.5 border border-gray-300 rounded-md"
-              />
-            </div>
+          {/* Year of Study */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Year of Study</label>
+            <input
+              type="number"
+              name="year_of_study"
+              value={formData.year_of_study}
+              onChange={handleChange}
+              className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+              required
+            />
           </div>
 
           {/* Profile Picture Upload */}
@@ -302,7 +318,7 @@ function StudentEditProfile() {
               type="submit"
               className="w-full bg-blue-600 text-white p-1.5 rounded-md hover:bg-blue-700"
             >
-              Register
+              Save Changes
             </button>
           </div>
         </form>

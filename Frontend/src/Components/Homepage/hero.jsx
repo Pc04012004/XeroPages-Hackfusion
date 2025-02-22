@@ -74,7 +74,7 @@ function Hero(props) {
     {
       title: "Academic Integrity & Cheating Record System",
       description: "Maintaining academic integrity by publicly displaying cheating records.",
-      link: "/academic-integrity",
+      link: "/home/cheating",
       overview: {
         latestRecord: "No recent cheating cases reported.",
         status: "Clean",
@@ -84,7 +84,7 @@ function Hero(props) {
     {
       title: "Anonymous Complaint System",
       description: "Submit anonymous complaints with moderation and transparency.",
-      link: "/complaints",
+      link: "/home/complaints",
       overview: {
         latestComplaint: "Complaint about cafeteria cleanliness",
         status: "Under Review",

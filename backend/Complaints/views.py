@@ -20,8 +20,8 @@ class AddCheatingRecordView(APIView):
 
     def post(self, request):
         # Check if the user has the required role (faculty, HOD, or admin)
-        # if request.user.role not in ["faculty", "hod", "admin"]:
-        #     return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
+        if request.user.role not in ["faculty", "hod", "admin"]:
+            return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
         # Pass the request data to the serializer
         serializer = CheatingRecordSerializer(data=request.data)
 
@@ -79,30 +79,38 @@ import tempfile
 UPLOAD_DIR = "D:/hackthon/XeroPages-Hackfusion/temp_uploads/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # ✅ Ensure directory exists
 
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from .models import Complaint
+from .serializers import ComplaintSerializer
+import os
+
 class ComplaintCreateView(generics.CreateAPIView):
     serializer_class = ComplaintSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         text = request.data.get("text", "")
-        anonymous = request.data.get("anonymous", False)
+        anonymous = request.data.get("anonymous")
+        if(anonymous=="true"):
+            anonymous = True
+        else:
+            anonymous = False
         image = request.FILES.get("image")
         video = request.FILES.get("video")
 
-    # ✅ AI Moderation
+        # ✅ AI Moderation
         if not moderate_text(text):
-           return Response({"error": "Your complaint contains inappropriate text!"}, status=400)
-
+            return Response({"error": "Your complaint contains inappropriate text!"}, status=400)
         if image:
+            print("image")
             temp_path = os.path.join(UPLOAD_DIR, "temp_image.jpg")
             with open(temp_path, "wb") as temp_file:
                for chunk in image.chunks():
                 temp_file.write(chunk)
 
             if not moderate_image(temp_path):
-              return Response({"error": "Inappropriate image detected!"}, status=400)
-
-            
+              return Response({"error": "Inappropriate image detected!"}, status=400)  
         if video:
             temp_path = os.path.join(UPLOAD_DIR, "temp_video.mp4")  # 🔹 Adjust the file extension if needed
             with open(temp_path, "wb") as temp_file:
@@ -111,16 +119,28 @@ class ComplaintCreateView(generics.CreateAPIView):
 
             if not moderate_video(temp_path):  # 🚀 Call video moderation function
                os.remove(temp_path)  # 🗑 Cleanup
-               return Response({"error": "Inappropriate video detected!"}, status=400)    
-        # os.remove(temp_path)
-    # ✅ Save the Complaint
-        complaint = Complaint.objects.create(
-             student=request.user if not anonymous else None,
-             anonymous=anonymous,
-             text=text,
-             image=image,
-             video=video,
-          )
+               return Response({"error": "Inappropriate video detected!"},status=400)
+            
+        print("1")
+        # ✅ Save the Complaint
+        complaint = Complaint(
+            anonymous=anonymous,
+            text=text,
+            image=image,
+            video=video,
+            approved=True,
+            student=request.user
+        )
+
+        # Save the Complaint instance to the database
+        complaint.save()
+
+        # Now that the instance has a primary key, set the student field if not anonymous
+        # if not anonymous:
+        #     complaint.student = request.user
+        #     complaint.save()  # Save again to update the student field
+
+        # Return the serialized complaint
         return Response(ComplaintSerializer(complaint).data, status=201)
 
     # def post(self, request, *args, **kwargs):
@@ -193,15 +213,25 @@ class VoteOnComplaintView(APIView):
         return Response(ComplaintVoteSerializer(complaint_vote).data, status=status.HTTP_201_CREATED)
 
     
-
 class ApprovedComplaintsView(APIView):
     def get(self, request):
-        complaints = Complaint.objects.filter(is_approved=True, is_blocked=False)
+        complaints = Complaint.objects.filter(approved=True)
         response_data = []
+
         for complaint in complaints:
             complaint_data = ComplaintSerializer(complaint).data
-            complaint_data["media"] = [media.file.url for media in complaint.media.all() if media.is_safe]
+            
+            # Add media files
+            complaint_data["media"] = []
+            if complaint.image:
+                complaint_data["media"].append(complaint.image.url)
+            if complaint.video:
+                complaint_data["media"].append(complaint.video.url)
+
             response_data.append(complaint_data)
+
+        return Response(response_data)
+
 
 
 class BoardApproveView(generics.UpdateAPIView):
