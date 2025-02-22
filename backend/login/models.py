@@ -76,6 +76,7 @@ class Custom_User(AbstractUser):
         ("doctor", "Doctor"),
         ("warden", "Warden"),
         ("security","Security Guard"),
+        ("board_member","Board Member"),
         ("admin", "Admin"),
     ]
 
@@ -127,6 +128,7 @@ class StudentProfile(models.Model):
     dob = models.DateField()
     email = models.EmailField(unique=True)
     phone_no = models.CharField(max_length=15)
+    section= models.CharField(max_length=15,choices=[('B', 'B'), ('A', 'A')])
     registration_no = models.CharField(max_length=100, unique=True)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     address = models.CharField(max_length=255)

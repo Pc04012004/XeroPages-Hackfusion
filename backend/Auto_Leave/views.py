@@ -98,14 +98,53 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
 
         return Response(HealthRecordSerializer(new_health_record).data, status=status.HTTP_201_CREATED)
   
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.core.mail import send_mail
-from .models import LeaveRequest, Custom_User
-from .serializers import LeaveRequestSerializer
+# from rest_framework import generics, status
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework_simplejwt.authentication import JWTAuthentication
+# from django.core.mail import send_mail
+# from .models import LeaveRequest, Custom_User
+# from .serializers import LeaveRequestSerializer
 
+
+# class LeaveRequestView(generics.ListCreateAPIView):
+#     """
+#     API for students to request leave.
+#     """
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+
+#     def get(self, request, *args, **kwargs):
+#         """
+#         Fetch all leave requests for the logged-in student.
+#         """
+#         leave_requests = LeaveRequest.objects.filter(student=request.user)
+#         serializer = LeaveRequestSerializer(leave_requests, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#     def post(self, request, *args, **kwargs):
+#         """
+#         Student submits a leave request.
+#         """
+#         reason = request.data.get("reason")
+#         departure_time = request.data.get("departure_time")
+#         return_time = request.data.get("return_time")
+
+#         leave_request = LeaveRequest.objects.create(
+#             student=request.user,
+#             reason=reason,
+#             departure_time=departure_time,
+#             return_time=return_time,
+#         )
+#         leave_request.save()
+
+#         return Response(LeaveRequestSerializer(leave_request).data, status=status.HTTP_201_CREATED)
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import LeaveRequest
+from .serializers import LeaveRequestSerializer
 
 class LeaveRequestView(generics.ListCreateAPIView):
     """
@@ -124,22 +163,24 @@ class LeaveRequestView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Student submits a leave request.
+        Student submits a leave request with an optional proof file.
         """
         reason = request.data.get("reason")
         departure_time = request.data.get("departure_time")
         return_time = request.data.get("return_time")
+        proof = request.FILES.get("proof")  # Handle file upload
 
         leave_request = LeaveRequest.objects.create(
             student=request.user,
             reason=reason,
             departure_time=departure_time,
             return_time=return_time,
+            proof=proof,  # Save the uploaded file
         )
         leave_request.save()
 
-        return Response(LeaveRequestSerializer(leave_request).data, status=status.HTTP_201_CREATED)
-
+        serializer = LeaveRequestSerializer(leave_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # class HODUnapprovedLeaveView(generics.ListAPIView):
 #     """
@@ -194,10 +235,25 @@ class HODApprovalView(generics.UpdateAPIView):
         # Ensure HOD can only approve/reject requests from their department
         if request.user.role != "hod" or leave_request.student.department != request.user.department:
             return Response({"error": "You can only manage leave requests from your department."}, status=status.HTTP_403_FORBIDDEN)
-
+      
         if action == "approve":
             leave_request.hod_approval = True
             leave_request.save()
+            student=StudentProfile.objects.get(user=request.user.id)
+            subject = f"Leave Approved for {student.full_name}"
+            message = f"""
+            Dear student,
+
+            Your leave has been granted by HOD.
+            
+            Reason: {leave_request.reason}
+            Departure: {leave_request.departure_time}
+            Return: {leave_request.return_time}
+
+            Regards,
+            College Administration
+            """
+            send_mail(subject, message, "omwasu20@gmail.com", [student.email])
             return Response({"message": "Leave approved by HOD."}, status=status.HTTP_200_OK)
 
         elif action == "reject":
@@ -243,6 +299,21 @@ class WardenApprovalView(generics.UpdateAPIView):
         if action == "approve":
             leave_request.warden_approval = True
             leave_request.save()
+            student=StudentProfile.objects.get(user=request.user.id)
+            subject = f"Leave Approved for {student.full_name}"
+            message = f"""
+            Dear student,
+
+            Your leave has been granted by Warden.
+            
+            Reason: {leave_request.reason}
+            Departure: {leave_request.departure_time}
+            Return: {leave_request.return_time}
+
+            Regards,
+            College Administration
+            """
+            send_mail(subject, message, "omwasu20@gmail.com", [student.email])
             return Response({"message": "Warden approved the leave."}, status=status.HTTP_200_OK)
 
         elif action == "reject":
@@ -296,8 +367,7 @@ class SecurityVerificationView(generics.UpdateAPIView):
             message = f"""
             Dear Parent,
 
-            Your child {student.full_name} has been granted leave.
-
+            Your child {student.full_name} has been granted leave and left the hostel for Home.
             Reason: {leave_request.reason}
             Departure: {leave_request.departure_time}
             Return: {leave_request.return_time}
