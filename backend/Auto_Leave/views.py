@@ -160,7 +160,7 @@ class HODUnapprovedLeaveView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         # Check if the user is an HOD
-        if request.user.role != "HOD":
+        if request.user.role != "hod":
             return Response({"error": "Access Denied. Only HODs can access this."}, status=status.HTTP_403_FORBIDDEN)
 
         # Fetch only students from the HOD's department
@@ -190,7 +190,7 @@ class HODApprovalView(generics.UpdateAPIView):
             return Response({"error": "Leave request not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Ensure HOD can only approve/reject requests from their department
-        if request.user.role != "HOD" or leave_request.student.department != request.user.department:
+        if request.user.role != "hod" or leave_request.student.department != request.user.department:
             return Response({"error": "You can only manage leave requests from your department."}, status=status.HTTP_403_FORBIDDEN)
 
         if action == "approve":
@@ -288,6 +288,7 @@ class SecurityVerificationView(generics.UpdateAPIView):
         # Send Email to Parents after final approval
         student = leave_request.student
         profile = StudentProfile.objects.get(user=student)
+        print(profile)
         if profile.parent_email:
             subject = f"Leave Approved for {student.full_name} {student.last_name}"
             message = f"""
@@ -302,6 +303,6 @@ class SecurityVerificationView(generics.UpdateAPIView):
             Regards,
             College Administration
             """
-            send_mail(subject, message, "omwasu20@gmail.com", [student.parent_email])
+            send_mail(subject, message, "omwasu20@gmail.com", [profile.parent_email])
 
         return Response({"message": "Security verified leave, student is allowed to exit."}, status=status.HTTP_200_OK)

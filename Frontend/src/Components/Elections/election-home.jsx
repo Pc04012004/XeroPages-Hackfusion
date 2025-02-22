@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion'; // Import Framer Motion
-import axios from 'axios'; // Import Axios
+import { motion } from 'framer-motion';
+import axios from 'axios';
 import NavBar from '../Homepage/navbar';
 import Footer from '../Homepage/footer';
 
 function ElectionHome() {
   const navigate = useNavigate();
-  const [electionPosts, setElectionPosts] = useState([]); // State for election posts
-  const [liveNominees, setLiveNominees] = useState([]); // State for live nominees
-  const [isAdmin, setIsAdmin] = useState(true); // Simulate admin access (can be fetched from backend)
-  const [showForm, setShowForm] = useState(false); // State to toggle the form
+  const [electionPosts, setElectionPosts] = useState([]);
+  const [liveNominees, setLiveNominees] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(true);
+  const [showForm, setShowForm] = useState(false);
   const [newPost, setNewPost] = useState({
     title: '',
     description: '',
     electionDate: '',
   });
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch election posts and live nominees from the API
   useEffect(() => {
     const fetchElectionData = async () => {
       try {
-        const token = localStorage.getItem('access_token'); // Get access token from localStorage
+        const token = localStorage.getItem('access_token');
 
         if (!token) {
           throw new Error('Access token not found. Please log in again.');
@@ -32,50 +32,80 @@ function ElectionHome() {
         // Fetch election posts
         const postsResponse = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
           headers: {
-            Authorization: `Bearer ${token}`, // Include access token in headers
+            Authorization: `Bearer ${token}`,
           },
         });
         const posts = postsResponse.data.map((post) => ({
           title: post.position,
           description: post.description,
-          electionDate: post.voting_day.split('T')[0], // Extract date from ISO string
+          electionDate: post.voting_day.split('T')[0],
         }));
-        setElectionPosts(posts); // Update state with fetched posts
+        setElectionPosts(posts);
 
         // Fetch approved candidates (live nominees)
         const nomineesResponse = await axios.get('http://127.0.0.1:8000/election/candidates/approved/', {
           headers: {
-            Authorization: `Bearer ${token}`, // Include access token in headers
+            Authorization: `Bearer ${token}`,
           },
         });
         const nominees = nomineesResponse.data.map((nominee) => ({
           id: nominee.id,
           name: nominee.name,
           status: nominee.dean_approved && nominee.director_approved ? 'Approved' : 'Pending',
-          post: nominee.position_applied.position, // Access the position applied by the nominee
+          post: nominee.position_applied.position,
         }));
-        setLiveNominees(nominees); // Update state with fetched nominees
+        setLiveNominees(nominees);
 
-        setLoading(false); // Set loading to false
+        setLoading(false);
       } catch (err) {
         if (err.response?.status === 401) {
-          // Unauthorized (invalid or missing token)
           setError('Unauthorized. Please log in again.');
-          navigate('/login'); // Redirect to login page
+          navigate('/login');
         } else {
-          setError('Failed to fetch election data.'); // Set error message
-          console.error(err); // Log the error for debugging
+          setError('Failed to fetch election data.');
+          console.error(err);
         }
-        setLoading(false); // Set loading to false
+        setLoading(false);
       }
     };
 
     fetchElectionData();
   }, [navigate]);
 
-  const handleCardClick = (path) => {
-    navigate(path);
+  const handleBtnClick = async (candidateId) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        throw new Error('No access token found. Please log in.');
+      }
+
+      const response = await axios.post(
+        'http://127.0.0.1:8000/election/vote/',
+        { candidate: candidateId },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Voted for Candidate');
+        navigate('/elections');
+      } else if (response.status === 403) {
+        alert(response.data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('You have already voted for this post.');
+    }
   };
+
+  function handleCardClick(path) {
+    navigate(path);
+    return;
+  }
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -87,23 +117,23 @@ function ElectionHome() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const updatedPosts = [...electionPosts, newPost];
-    setElectionPosts(updatedPosts); // Update state with new post
-    setNewPost({ title: '', description: '', electionDate: '' }); // Reset form
-    setShowForm(false); // Close the form
+    setElectionPosts(updatedPosts);
+    setNewPost({ title: '', description: '', electionDate: '' });
+    setShowForm(false);
   };
 
   // Animation variants for sliding effect
   const cardVariants = {
-    hidden: { opacity: 0, x: -50 }, // Start off-screen to the left
-    visible: { opacity: 1, x: 0 }, // Slide in to the center
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0 },
   };
 
   if (loading) {
-    return <div className="text-center p-8">Loading...</div>; // Show loading state
+    return <div className="text-center p-8">Loading...</div>;
   }
 
   if (error) {
-    return <div className="text-center p-8 text-red-600">{error}</div>; // Show error state
+    return <div className="text-center p-8 text-red-600">{error}</div>;
   }
 
   return (
@@ -128,15 +158,6 @@ function ElectionHome() {
             >
               Register as Candidate
             </button>
-            {/* Admin Button */}
-            {/* {isAdmin && (
-              <button
-                onClick={() => setShowForm(!showForm)}
-                className="bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition-colors duration-300"
-              >
-                Upload Election Posts
-              </button>
-            )} */}
           </div>
         </div>
 
@@ -202,9 +223,13 @@ function ElectionHome() {
                   className="inline-block w-96 bg-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
                   onClick={() => handleCardClick(`/elections/${post.title}`)}
                 >
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-center mb-4">{post.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{post.description}</p>
+                  <div className="p-6 h-64 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold text-center mb-4">{post.title}</h3>
+                      <p className="text-gray-600 text-sm mb-4 overflow-y-auto max-h-20 whitespace-normal">
+                        {post.description}
+                      </p>
+                    </div>
                     <p className="text-gray-500 text-xs">Election Date: {post.electionDate}</p>
                   </div>
                 </motion.div>
@@ -227,14 +252,16 @@ function ElectionHome() {
                   transition={{ delay: index * 0.2, duration: 0.5 }}
                   className="inline-block w-96 bg-white rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
                 >
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold mb-4">{nominee.name}</h3>
-                    <p className="text-gray-600">Status: {nominee.status}</p>
-                    <p className="text-gray-600">Post: {nominee.post}</p> {/* Display the position applied */}
+                  <div className="p-6 h-64 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold mb-4">{nominee.name}</h3>
+                      <p className="text-gray-600">Status: {nominee.status}</p>
+                      <p className="text-gray-600">Post: {nominee.post}</p>
+                    </div>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click event from firing
-                        handleCardClick(`/elections/nominee/${nominee.name}`);
+                        e.stopPropagation();
+                        handleBtnClick(nominee.id);
                       }}
                       className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full w-full hover:bg-red-700 transition-colors duration-300"
                     >

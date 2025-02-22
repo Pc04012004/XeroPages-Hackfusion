@@ -17,6 +17,8 @@ function StudentEditProfile() {
     phone_no: "",
     hostel_status: false,
     profile_picture: null,
+    parent_email: "", // New field
+    Parent_phone_no: "", // New field
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -176,6 +178,32 @@ function StudentEditProfile() {
                 type="tel"
                 name="phone_no"
                 value={formData.phone_no}
+                onChange={handleChange}
+                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Parent Email and Parent Phone No */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Parent Email</label>
+              <input
+                type="email"
+                name="parent_email"
+                value={formData.parent_email}
+                onChange={handleChange}
+                className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Parent Phone Number</label>
+              <input
+                type="tel"
+                name="Parent_phone_no"
+                value={formData.Parent_phone_no}
                 onChange={handleChange}
                 className="mt-1 block w-full p-1.5 border border-gray-300 rounded-md"
                 required
