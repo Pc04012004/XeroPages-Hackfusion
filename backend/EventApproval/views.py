@@ -1,12 +1,16 @@
-
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import RepresentativeStudent
-from .serializers import RepresentativeStudentSerializer
-from login.models import *
 from django.core.mail import send_mail
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from .models import*
+from .serializers import *
+from login.models import *
+
+
+
 # 🔹 Student Representative Views
 class RepresentativeStudentView(generics.ListCreateAPIView):
     """
@@ -16,13 +20,6 @@ class RepresentativeStudentView(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
     queryset = RepresentativeStudent.objects.all()
     serializer_class = RepresentativeStudentSerializer
-    
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import Event
-from .serializers import EventSerializer
 
 class TrackApplicationsView(generics.ListAPIView):
     """
@@ -76,10 +73,6 @@ class EventView(generics.ListCreateAPIView):
         send_application_update("event_created", event)
         return Response(EventSerializer(event).data, status=status.HTTP_201_CREATED)
     
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from .models import EventBudget, EventSponsorship, Event
-from .serializers import EventBudgetSerializer, EventSponsorshipSerializer
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -244,14 +237,6 @@ class AddSponsorshipView(generics.CreateAPIView):
             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from .models import Event
-from .serializers import EventSerializer
-
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 def send_application_update(event_type, instance):
     """Send real-time WebSocket updates"""
     channel_layer = get_channel_layer()
@@ -320,10 +305,7 @@ class ApproveEventByDirectorView(generics.UpdateAPIView):
             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-from rest_framework import generics, status
-from rest_framework.response import Response
-from .models import EventExpense
-from .serializers import EventExpenseSerializer
+
 
 class AddEventExpenseView(generics.CreateAPIView):
     """

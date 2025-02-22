@@ -11,14 +11,6 @@ DEPARTMENT_CHOICES = [
         ('IT', 'Information Technology'),
         ('Mathematics', 'Mathematics'),
 ]
-# class HealthRecord(models.Model):
-#     full_name=models.CharField(max_length=20,default="not found")
-#     department = models.CharField(max_length=100,choices=DEPARTMENT_CHOICES)  # Example: "Computer Science"
-#     year = models.IntegerField()  # Example: 2 for second-year students
-#     section = models.CharField(max_length=10, blank=True, null=True)
-#     status = models.CharField(max_length=20)
-#     doctor_notes = models.TextField()
-#     date_reported = models.DateTimeField(auto_now_add=True)
 
 class LeaveRequest(models.Model):
     student = models.ForeignKey(Custom_User, on_delete=models.CASCADE)

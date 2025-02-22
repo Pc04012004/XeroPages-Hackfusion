@@ -306,6 +306,7 @@ def start_counting(request):
 
         return JsonResponse({'message': 'Counting started! Leaderboard initialized.'})
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
 @csrf_exempt
 def count_votes(request):
     if request.method == 'POST':

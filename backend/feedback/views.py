@@ -1,13 +1,16 @@
 from django.shortcuts import render
+from django.utils import timezone
 
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import *
+
+from .models import AdministrationFeedback
 from .serializers import *
+from .models import *
 from login.models import *
+
 
 class FacultyLecturesView(APIView):
     permission_classes = [IsAuthenticated]
@@ -45,8 +48,6 @@ class SubmitFeedbackView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-from django.utils import timezone
-
 class FetchLecturesByDateTimeView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -70,12 +71,6 @@ class FetchPreviousLecturesView(APIView):
         serializer = LectureSerializer(lectures, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from .models import AdministrationFeedback
-from .serializers import AdministrationFeedbackSerializer
 
 class SubmitAdministrationFeedbackView(APIView):
     permission_classes = [IsAuthenticated]
@@ -86,11 +81,14 @@ class SubmitAdministrationFeedbackView(APIView):
             serializer.save(submitted_by=request.user)  # Link feedback to the logged-in user
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class FetchAllAdministrationFeedbackView(APIView):
     def get(self, request):
         feedbacks = AdministrationFeedback.objects.all()
         serializer = AdministrationFeedbackSerializer(feedbacks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
 class AdminResponseView(APIView):
     permission_classes = [IsAuthenticated]
 

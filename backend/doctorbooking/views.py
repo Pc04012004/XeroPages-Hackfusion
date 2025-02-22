@@ -1,13 +1,16 @@
 from django.shortcuts import render
 from django.core.mail import send_mail
-# Create your views here.
+from django.utils.timezone import now
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import JWTAuthentication
+from datetime import datetime, timedelta
 from .models import *
 from .serializers import *
-from datetime import datetime, timedelta
 from login.models import *
+
 class DoctorView(APIView):
     """
     Fetch details of all doctors.
@@ -57,10 +60,7 @@ class DoctorAvailableSlotsView(APIView):
             current_time += timedelta(minutes=30)
 
         return {"available_slots": slots}
-    
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import JWTAuthentication
-from django.utils.timezone import now
+
 class BookAppointmentView(APIView):
     """
     Book an appointment for a student.
@@ -155,5 +155,5 @@ class CreatePrescriptionView(APIView):
                 Health Monitoring System
                 """
                 send_mail(subject, message, "admin@yourwebsite.com", [class_coordinator.email],fail_silently=False)
-                
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)

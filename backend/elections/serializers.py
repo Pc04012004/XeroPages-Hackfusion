@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from .models import *
+from rest_framework import serializers
+from .models import VoteCount
 
 class ElectionPostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,8 +63,6 @@ class VoterSerializer(serializers.ModelSerializer):
         model = Voter
         fields = '__all__'
 
-from rest_framework import serializers
-from .models import VoteCount
 
 class VoteCountSerializer(serializers.ModelSerializer):
     candidate_name = serializers.CharField(source="candidate.user.full_name", read_only=True)

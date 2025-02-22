@@ -1,9 +1,4 @@
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import RepresentativeStudent, Event, EventBudget, EventSponsorship
-from .serializers import RepresentativeStudentSerializer, EventSerializer, EventBudgetSerializer, EventSponsorshipSerializer
+from .models import EventBudget, EventSponsorship
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from celery import shared_task
