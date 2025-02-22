@@ -92,7 +92,7 @@ class DeanApprovalView(generics.ListAPIView, generics.UpdateAPIView):
     - Dean can see all registered candidates.
     - Dean can approve candidates.
     """
-    queryset = Candidate.objects.all()
+    queryset = Candidate.objects.filter(dean_approved=False)
     serializer_class = CandidateSerializer
     permission_classes = [IsDean_s]
 
@@ -112,7 +112,7 @@ class DirectorApprovalView(generics.ListAPIView, generics.UpdateAPIView):
     - Director can see all registered candidates.
     - Director can approve candidates (only if approved by Dean first).
     """
-    queryset = Candidate.objects.all()
+    queryset = Candidate.objects.filter(dean_approved=True)
     serializer_class = CandidateSerializer
     permission_classes = [IsDirector]
 
@@ -152,7 +152,7 @@ class VoterRegistrationView(generics.ListCreateAPIView):
     - Fetches all registered voters (GET request).
     """
 
-    permission_classes = [permissions.IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request, *args, **kwargs):

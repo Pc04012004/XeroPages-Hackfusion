@@ -30,7 +30,7 @@ function ProfilePage() {
             }
           );
           setUser(response.data);
-        } else if (userRole === "faculty") {
+        } else if (["faculty", "dean_student", "hod", "director","warden" ,"security)"].includes(userRole)) {
           // Fetch faculty profile
           response = await axios.get(
             `http://127.0.0.1:8000/auth/faculty/profile/`,

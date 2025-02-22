@@ -9,6 +9,7 @@ function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userRole, setRole] = useState('');
   const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
@@ -23,13 +24,14 @@ function Home() {
 
         const parsedUser = JSON.parse(storedUser);
         const userId = parsedUser?.user_id;
+        setRole(parsedUser.role);
 
         if (!userId) {
           throw new Error("User ID not found");
         }
 
         let response;
-        if (["faculty", "dean_student"].includes(parsedUser?.role)) {
+        if (["faculty", "dean_student", "hod", "director", "warden", "security)", "doctor"].includes(parsedUser?.role)) {
           // Fetch faculty profile
           response = await axios.get(
             `http://127.0.0.1:8000/auth/faculty/profile/`, // Ensure the correct endpoint
@@ -74,7 +76,7 @@ function Home() {
 
           if (parsedUser?.role === "student") {
             navigate("/home/profile/student");
-          } else if (["faculty", "dean_student"].includes(parsedUser?.role)) {
+          } else if (["faculty", "dean_student", "hod", "director"].includes(parsedUser?.role)) {
             navigate("/home/profile/faculty");
           }
         } else {
@@ -100,7 +102,7 @@ function Home() {
   return (
     <div>
       <NavBar />
-      <Hero />
+      <Hero userRole = {userRole} />
       <Footer />
     </div>
   );

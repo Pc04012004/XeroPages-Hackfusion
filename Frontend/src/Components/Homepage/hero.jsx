@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-function Hero() {
+function Hero(props) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
+  const role = props.userRole;
 
   // Events data for the slider
   const events = [
@@ -41,7 +44,7 @@ function Hero() {
     {
       title: "Automated Health & Leave Notifications",
       description: "Automated health notifications and parental alerts ensure student safety.",
-      link: "/health-notifications",
+      link: `/home/health-notifications/${role}`,
       overview: {
         latestNotification: "Health Checkup on March 30, 2025",
         status: "Upcoming",
@@ -126,14 +129,15 @@ function Hero() {
         <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2 p-4 cursor-pointer z-10"
           onClick={handlePrev}
+          aria-label="Previous Slide"
         >
           <ChevronLeft className="text-white w-8 h-8" />
         </div>
 
         {/* Slider Content */}
-        <div className="flex w-full h-full transition-all duration-300">
+        <div className="flex w-full h-full">
           <div
-            className="flex-shrink-0 w-full h-full bg-cover bg-center"
+            className="flex-shrink-0 w-full h-full bg-cover bg-center transition-all duration-300"
             style={{ backgroundImage: `url(${events[currentIndex].image})` }}
           >
             <div className="flex justify-center items-center h-full bg-black bg-opacity-50">
@@ -150,6 +154,7 @@ function Hero() {
         <div
           className="absolute right-0 top-1/2 transform -translate-y-1/2 p-4 cursor-pointer z-10"
           onClick={handleNext}
+          aria-label="Next Slide"
         >
           <ChevronRight className="text-white w-8 h-8" />
         </div>
@@ -173,12 +178,12 @@ function Hero() {
                   <p className="text-sm text-gray-500 mt-2">Status: {feature.overview.status}</p>
                   <p className="text-sm text-gray-500">{feature.overview.details}</p>
                 </div>
-                <a
-                  href={feature.link}
+                <button
+                  onClick={() => navigate(feature.link)}
                   className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors duration-300"
                 >
                   Learn More
-                </a>
+                </button>
               </div>
             ))}
           </div>
