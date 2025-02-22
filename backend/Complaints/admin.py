@@ -3,3 +3,4 @@ from .models import *
 # Register your models here.
 admin.site.register(CheatingRecord)
 admin.site.register(Complaint)
+admin.site.register(ComplaintVote)
