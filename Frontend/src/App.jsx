@@ -17,6 +17,7 @@ import DoctorDashboard from './Components/Health-Leave/hl-doctor.jsx';
 import HodDashboard from './Components/Health-Leave/hl-hod.jsx';
 import SecurityDashboard from './Components/Health-Leave/hl-security.jsx';
 import FacilityView from './Components/CampusFacility/facility-view.jsx';
+import MentalHealth from './Components/Mental-Health/mental-health.jsx';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/home/health-notifications/doctor" element={<DoctorDashboard />} />
         <Route path="/home/health-notifications/security)" element={<SecurityDashboard />} />
         <Route path="/home/campus-facility" element={<FacilityView />} />
+        <Route path="/home/mental-health" element={<MentalHealth />} />
 
         
 
