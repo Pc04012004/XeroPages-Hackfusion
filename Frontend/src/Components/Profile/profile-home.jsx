@@ -22,7 +22,7 @@ function ProfilePage() {
         if (userRole === "student") {
           // Fetch student profile
           response = await axios.get(
-            `http://127.0.0.1:8000/auth/studentProfile/${userId}/`,
+            `http://127.0.0.1:8000/auth/StudentProfileDetail/`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

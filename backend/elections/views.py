@@ -134,7 +134,8 @@ class ApprovedCandidatesPublicView(generics.ListAPIView):
     - Publicly accessible.
     """
     queryset = Candidate.objects.filter(dean_approved=True, director_approved=True)
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateSerializer_d
+
 
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
@@ -202,6 +203,7 @@ class VoterRegistrationView(generics.ListCreateAPIView):
         voter.save()
 
         return Response(VoterSerializer(voter).data, status=status.HTTP_201_CREATED)
+
     
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response

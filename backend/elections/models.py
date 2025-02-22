@@ -93,7 +93,7 @@ class Voter(models.Model):
     name = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
     year = models.IntegerField()
-    registration_number = models.CharField(max_length=50, unique=True)
+    registration_number = models.CharField(max_length=50)
     verified=models.BooleanField(default=False)
 
     def _str_(self):

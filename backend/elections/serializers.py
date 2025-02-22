@@ -7,12 +7,12 @@ class ElectionPostSerializer(serializers.ModelSerializer):
         model = ElectionPost
         fields = '__all__'
 
-# class CandidateSerializer(serializers.ModelSerializer):
-#     meets_eligibility = serializers.ReadOnlyField()
+class CandidateSerializer_d(serializers.ModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = '__all__'
+        depth = 1  # ✅ Set to an integer (e.g., 1)
 
-#     class Meta:
-#         model = Candidate
-#         fields = '__all__'
 
 class CandidateSerializer(serializers.ModelSerializer):
     meets_eligibility = serializers.SerializerMethodField()  
