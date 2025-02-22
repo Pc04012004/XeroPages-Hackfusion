@@ -12,7 +12,7 @@ class ElectionPost(models.Model):
     voting_day = models.DateTimeField()  # The day when voting will take place
     dean_approved = models.BooleanField(default=True)
     director_approved = models.BooleanField(default=False)
-
+    phase = models.CharField(max_length=20, default='voting', choices=[('voting', 'Voting Phase'), ('counting', 'Counting Phase')])
     def approve_by_dean(self):
         if not self.dean_approved:
             self.dean_approved = True
@@ -109,17 +109,12 @@ class VoteCount(models.Model):
 
 
 class VoterVote(models.Model):
-    """
-    Tracks which voter has voted for which election post.
-    This prevents multiple votes for the same post but allows voting in different posts.
-    """
-    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)  # Voter who cast the vote
-    post = models.ForeignKey(ElectionPost, on_delete=models.CASCADE)  # Post they voted for
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)  # Candidate they voted for
-    timestamp = models.DateTimeField(auto_now_add=True)  # When the vote was cast
+    post = models.ForeignKey(ElectionPost, on_delete=models.CASCADE)
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('voter', 'post')  # Ensures voter can vote only once per post
+        unique_together = ('post', 'candidate')  # Optional: Ensure no duplicate votes for testing purposes
 
     def __str__(self):
-        return f"{self.voter.name}"
+        return f"Vote for {self.candidate.name} in {self.post.position}"

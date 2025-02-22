@@ -25,6 +25,7 @@ class LeaveRequest(models.Model):
     reason = models.TextField()
     departure_time = models.DateTimeField()
     return_time = models.DateTimeField()
+    proof=models.ImageField(upload_to='leave_proof/', null=True, blank=True)
     reject=models.BooleanField(default=False)
     hod_approval = models.BooleanField(default=False)
     warden_approval = models.BooleanField(default=False)

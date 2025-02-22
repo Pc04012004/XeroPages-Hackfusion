@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .models import CheatingRecord, Complaint
-from .serializers import CheatingRecordSerializer, ComplaintSerializer
+from .serializers import *
 
 # ✅ Fetch All Cheating Records (Visible to All)
 class CheatingRecordListView(APIView):
@@ -19,15 +19,57 @@ class AddCheatingRecordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if request.user.role not in ["faculty", "hod", "admin"]:
-            return Response({"error": "Unauthorized"}, status=403)
-
+        # Check if the user has the required role (faculty, HOD, or admin)
+        # if request.user.role not in ["faculty", "hod", "admin"]:
+        #     return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
+        # Pass the request data to the serializer
         serializer = CheatingRecordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            # Save the cheating record
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+import logging
+
+logger = logging.getLogger(__name__)
+
+class AddActionToCheatingRecordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, cheating_record_id):
+        try:
+            cheating_record = CheatingRecord.objects.get(id=cheating_record_id)
+        except CheatingRecord.DoesNotExist:
+            logger.error(f"Cheating record with ID {cheating_record_id} not found.")
+            return Response({"error": "Cheating record not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CheatingRecordActionSerializer(cheating_record, data=request.data, partial=True)
+
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+            logger.info(f"Action updated for cheating record ID {cheating_record_id} by user {request.user.username}.")
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        logger.error(f"Failed to update action for cheating record ID {cheating_record_id}: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class FetchPendingActionCheatingRecordsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Fetch all cheating records where action is "Not Done Yet".
+        """
+        # Check if the user has the required role (faculty, HOD, or admin)
+        if request.user.role not in ["faculty", "hod", "admin"]:
+            return Response({"error": "Unauthorized. Only faculty, HOD, or admin can view pending cheating records."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Filter cheating records where action is "Not Done Yet"
+        pending_records = CheatingRecord.objects.filter(action="Not Done Yet")
+
+        # Serialize the data
+        serializer = CheatingRecordSerializer(pending_records, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)  
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from .models import Complaint
@@ -111,6 +153,46 @@ class ComplaintCreateView(generics.CreateAPIView):
     #         video=video,
     #     )
     #     return Response(ComplaintSerializer(complaint).data, status=201)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .models import Complaint, ComplaintVote
+from .serializers import *
+
+class VoteOnComplaintView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, complaint_id):
+        """
+        Allow board members to vote on revealing the identity of a complaint.
+        """
+        if request.user.role != "board_member":
+            return Response({"error": "Unauthorized. Only board members can vote."}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            complaint = Complaint.objects.get(id=complaint_id)
+        except Complaint.DoesNotExist:
+            return Response({"error": "Complaint not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if ComplaintVote.objects.filter(complaint=complaint, board_member=request.user).exists():
+            return Response({"error": "You have already voted on this complaint."}, status=status.HTTP_400_BAD_REQUEST)
+
+        vote = request.data.get("vote", True)  # Default to True (Reveal Identity)
+        complaint_vote = ComplaintVote.objects.create(
+            complaint=complaint,
+            board_member=request.user,
+            vote=vote,
+        )
+
+        # Check if majority has voted to reveal identity
+        if complaint.should_reveal_identity():
+            complaint.board_approved_identity = True
+            complaint.save()
+
+        return Response(ComplaintVoteSerializer(complaint_vote).data, status=status.HTTP_201_CREATED)
+
+    
 
 class ApprovedComplaintsView(APIView):
     def get(self, request):
