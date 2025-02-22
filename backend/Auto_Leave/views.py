@@ -45,6 +45,7 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
         Allow users to create a new health record.
         If the student is marked as 'Sick', an email is sent to the class coordinator.
         """
+        full_name = request.data.get("full_name")
         department = request.data.get("department")
         year = request.data.get("year")
         section = request.data.get("section")
@@ -61,6 +62,7 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
 
         # Create a new health record
         new_health_record = HealthRecord.objects.create(
+            full_name=full_name,
             department=department,
             year=year,
             section=section,
@@ -76,11 +78,11 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
             ).first()
 
             if class_coordinator:
-                subject = f"Health Notification: Student from {department} - Year {year} - Section {section}"
+                subject = f"Health Notification: {full_name} from {department} - Year {year} - Section {section}"
                 message = f"""
                 Dear {class_coordinator.coordinator_name},
 
-                A student from {department}, Year {year}, Section {section} has been marked as Sick.
+                A {full_name} from {department}, Year {year}, Section {section} has been marked as Sick.
 
                 Doctor's Notes:
                 {doctor_notes}
@@ -92,10 +94,10 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
                 Regards,
                 Health Monitoring System
                 """
-                send_mail(subject, message, "omwasu20@gmail.com", [class_coordinator.email])
+                send_mail(subject, message, "admin@yourwebsite.com", [class_coordinator.email],fail_silently=False)
 
         return Response(HealthRecordSerializer(new_health_record).data, status=status.HTTP_201_CREATED)
-
+  
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -160,7 +162,7 @@ class HODUnapprovedLeaveView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         # Check if the user is an HOD
-        if request.user.role != "HOD":
+        if request.user.role != "hod":
             return Response({"error": "Access Denied. Only HODs can access this."}, status=status.HTTP_403_FORBIDDEN)
 
         # Fetch only students from the HOD's department
@@ -190,7 +192,7 @@ class HODApprovalView(generics.UpdateAPIView):
             return Response({"error": "Leave request not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Ensure HOD can only approve/reject requests from their department
-        if request.user.role != "HOD" or leave_request.student.department != request.user.department:
+        if request.user.role != "hod" or leave_request.student.department != request.user.department:
             return Response({"error": "You can only manage leave requests from your department."}, status=status.HTTP_403_FORBIDDEN)
 
         if action == "approve":
@@ -302,6 +304,6 @@ class SecurityVerificationView(generics.UpdateAPIView):
             Regards,
             College Administration
             """
-            send_mail(subject, message, "omwasu20@gmail.com", [student.parent_email])
+            send_mail(subject, message, "omwasu20@gmail.com", [profile.parent_email])
 
         return Response({"message": "Security verified leave, student is allowed to exit."}, status=status.HTTP_200_OK)

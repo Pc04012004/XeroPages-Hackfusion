@@ -75,7 +75,7 @@ class Custom_User(AbstractUser):
         ("director", "Director"),
         ("doctor", "Doctor"),
         ("warden", "Warden"),
-        ("security)","Security Guard)"),
+        ("security","Security Guard"),
         ("admin", "Admin"),
     ]
 

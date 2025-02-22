@@ -1,9 +1,19 @@
 from django.db import models
 from login.models import*
 # Create your models here..
-
+DEPARTMENT_CHOICES = [
+        ('Admin', 'Administration'),
+        ('CSE', 'Computer Science and Engineering'),
+        ('ECE', 'Electronics and Communication Engineering'),
+        ('EEE', 'Electrical and Electronics Engineering'),
+        ('ME', 'Mechanical Engineering'),
+        ('CE', 'Civil Engineering'),
+        ('IT', 'Information Technology'),
+        ('Mathematics', 'Mathematics'),
+]
 class HealthRecord(models.Model):
-    department = models.CharField(max_length=100)  # Example: "Computer Science"
+    full_name=models.CharField(max_length=20,default="not found")
+    department = models.CharField(max_length=100,choices=DEPARTMENT_CHOICES)  # Example: "Computer Science"
     year = models.IntegerField()  # Example: 2 for second-year students
     section = models.CharField(max_length=10, blank=True, null=True)
     status = models.CharField(max_length=20)
@@ -22,7 +32,7 @@ class LeaveRequest(models.Model):
     final_status = models.BooleanField(default=False)
 
 class ClassCoordinator(models.Model):
-    department = models.CharField(max_length=100)  # Example: "Computer Science"
+    department = models.CharField(max_length=100,choices=DEPARTMENT_CHOICES)  # Example: "Computer Science"
     year = models.IntegerField()  # Example: 2 for second-year students
     section = models.CharField(max_length=10, blank=True, null=True)  # Example: "A", "B"
     coordinator_name = models.CharField(max_length=100)

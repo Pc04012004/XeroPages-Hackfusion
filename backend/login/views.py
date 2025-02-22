@@ -164,7 +164,7 @@ class FacultyProfileView(generics.ListCreateAPIView):
     """
     Faculty can view their profile and create a new one.
     """
-    permission_classes = [IsAuthenticated, IsFaculty]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     serializer_class = FacultyProfileSerializer
 

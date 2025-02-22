@@ -24,4 +24,5 @@ urlpatterns = [
     path("leave/",include('Auto_Leave.urls')),
     path("campusfacility/",include('CampusFacility.urls')),
     path("Complaints/",include('Complaints.urls')),
+    path("Event/",include('EventApproval.urls')),
 ]

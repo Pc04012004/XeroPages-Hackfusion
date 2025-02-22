@@ -1,6 +1,6 @@
     
 from rest_framework import serializers
-from .models import CheatingRecord, Complaint, ComplaintModeration
+from .models import CheatingRecord, Complaint
 
 # ✅ Cheating Record Serializer
 class CheatingRecordSerializer(serializers.ModelSerializer):

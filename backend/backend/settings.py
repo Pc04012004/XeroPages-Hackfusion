@@ -14,6 +14,18 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "backend\your_google_credentials.json"
+PERSPECTIVE_API_KEY = "AIzaSyClrrJptAEwgdgmm3PyCoXb7IflrynDias"
+# import os
+# # Get the BASE_DIR (Root directory of the Django project)
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# # Set Google Application Credentials
+# GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "your_google_credentials.json")
+
+# # Apply the environment variable
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_PATH
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +39,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'login.Custom_User'
+# ASGI Application
+ASGI_APPLICATION = "college_app.asgi.application"
 
+# Channel Layers (Using Redis)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 
 # Application definition
@@ -46,6 +66,9 @@ INSTALLED_APPS = [
     "Auto_Leave",
     "CampusFacility",
     "Complaints",
+    "EventApproval",
+    'channels',
+    'django_celery_beat',
     'corsheaders',
     'authtools',
     'rest_framework',
@@ -120,10 +143,13 @@ DATABASES = {
     }
 }
 
-# CELERY_BROKER_URL = 'redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
-# CELERY_RESULT_BACKEND='redis://:redis://:fg1H4Fmh6hkHYpRjTugXheIi0Cwvjo5M@redis-13524.c8.us-east-1-3.ec2.redns.redis-cloud.com:13524/0'
-
-
+CELERY_BROKER_URL = 'redis://:Oc5t0fm8ano4veVf2U8xDAfqY1dI4Qgx@redis-18024.c264.ap-south-1-1.ec2.redns.redis-cloud.com:18024/0'
+CELERY_RESULT_BACKEND='redis://:Oc5t0fm8ano4veVf2U8xDAfqY1dI4Qgx@redis-18024.c264.ap-south-1-1.ec2.redns.redis-cloud.com:18024/0'
+CELERY_ACCEPT_CONTENT=['application/json']
+CELERY_RESULT_SELERLIZER='json'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

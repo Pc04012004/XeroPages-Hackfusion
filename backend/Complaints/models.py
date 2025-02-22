@@ -27,4 +27,7 @@ class Complaint(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Complaint #{self.id} - {'Anonymous' if self.anonymous else self.student.username}"
+     if self.anonymous or self.student is None:
+        return f"Complaint #{self.id} - Anonymous"
+     return f"Complaint #{self.id} - {self.student.username}"
+
