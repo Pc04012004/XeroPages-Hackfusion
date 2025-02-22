@@ -54,7 +54,7 @@ function Hero(props) {
     {
       title: "Campus Facility Booking System",
       description: "Effortlessly book campus facilities with an online booking platform.",
-      link: "/facility-booking",
+      link: "/home/campus-facility",
       overview: {
         latestBooking: "Auditorium booked for Tech Fest on April 15, 2025",
         status: "Booked",
