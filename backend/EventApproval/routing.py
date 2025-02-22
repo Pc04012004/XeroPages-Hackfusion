@@ -1,6 +1,6 @@
-from django.urls import path
+from django.urls import re_path
 from .consumers import ApplicationStatusConsumer
 
 websocket_urlpatterns = [
-    path("ws/status/", ApplicationStatusConsumer.as_asgi()),
+    re_path(r'ws/status_updates/$', ApplicationStatusConsumer.as_asgi()),
 ]

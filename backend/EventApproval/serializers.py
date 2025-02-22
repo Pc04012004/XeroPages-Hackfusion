@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import Event, EventBudget, EventSponsorship
+from .models import RepresentativeStudent, Event, EventBudget, EventSponsorship
+
+class RepresentativeStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RepresentativeStudent
+        fields = '__all__'
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:

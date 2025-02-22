@@ -40,7 +40,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'login.Custom_User'
 # ASGI Application
-ASGI_APPLICATION = "college_app.asgi.application"
+ASGI_APPLICATION = "backend.asgi.application"
 
 # Channel Layers (Using Redis)
 CHANNEL_LAYERS = {
@@ -49,6 +49,16 @@ CHANNEL_LAYERS = {
     }
 }
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                "redis://:Oc5t0fm8ano4veVf2U8xDAfqY1dI4Qgx@redis-18024.c264.ap-south-1-1.ec2.redns.redis-cloud.com:18024/0"
+            ],
+        },
+    },
+}
 
 # Application definition
 CORS_ALLOWED_ORIGINS = [
@@ -209,3 +219,5 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
