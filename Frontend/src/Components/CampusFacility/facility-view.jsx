@@ -5,6 +5,7 @@ import Footer from "../Homepage/footer";
 
 function FacilityView() {
   const [facilities, setFacilities] = useState([]); // State to store facilities or pending approvals
+  const [bookingHistory, setBookingHistory] = useState([]); // State to store booking history for students
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false); // State to control booking modal
@@ -14,7 +15,8 @@ function FacilityView() {
   const [selectedReason, setSelectedReason] = useState(""); // State to store the selected reason for modal
   const [availabilityData, setAvailabilityData] = useState(null); // State to store availability data
   const [formData, setFormData] = useState({
-    date: "",
+    start_date: "",
+    end_date: "",
     start_time: "",
     end_time: "",
     reason: "",
@@ -36,7 +38,7 @@ function FacilityView() {
 
         if (role === "student") {
           // Fetch facilities for students
-          const response = await axios.get(
+          const facilitiesResponse = await axios.get(
             "http://127.0.0.1:8000/campusfacility/facilities/",
             {
               headers: {
@@ -44,11 +46,22 @@ function FacilityView() {
               },
             }
           );
-          setFacilities(response.data); // Update state with fetched facilities
+          setFacilities(facilitiesResponse.data); // Update state with fetched facilities
+
+          // Fetch booking history for students
+          const bookingHistoryResponse = await axios.get(
+            "http://127.0.0.1:8000/campusfacility/booking-history/",
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          setBookingHistory(bookingHistoryResponse.data.results); // Update state with fetched booking history
         } else if (role === "hod" || role === "sport_head") {
           // Fetch pending approvals for HOD or Sport Head
           const response = await axios.get(
-            "http://127.0.0.1:8000/campusfacility/bookings/pending-approvals/",
+            "http://127.0.0.1:8000/campusfacility/pending-approvals/",
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -133,7 +146,7 @@ function FacilityView() {
 
       // Send the POST request to approve/reject the booking
       const response = await axios.post(
-        `http://127.0.0.1:8000/campusfacility/bookings/${bookingId}/approve-reject/`,
+        `http://127.0.0.1:8000/campusfacility/approve-reject-booking/${bookingId}/`,
         { action: action }, // Pass the action in the request body
         {
           headers: {
@@ -232,36 +245,69 @@ function FacilityView() {
         ) : error ? (
           <p className="text-center text-red-600">{error}</p>
         ) : userRole === "student" ? (
-          // Display facilities for students
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" >
-            {facilities.map((facility) => (
-              <div
-                key={facility.id}
-                className="bg-white p-6 rounded-lg shadow-lg"
-                onClick={() => openAvailabilityModal(facility)}
-              >
-                <h2 className="text-xl font-semibold mb-2">{facility.name}</h2>
-                <p className="text-gray-700 mb-4">
-                  Status:{" "}
-                  <span
-                    className={`font-semibold ${
-                      facility.availability_status
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {facility.availability_status ? "Available" : "Booked"}
-                  </span>
-                </p>
-                <button
-                  onClick={() => openBookingModal(facility)}
-                  className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+          // Display facilities and booking history for students
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {facilities.map((facility) => (
+                <div
+                  key={facility.id}
+                  className="bg-white p-6 rounded-lg shadow-lg"
+                  onClick={() => openAvailabilityModal(facility)}
                 >
-                  Book Now
-                </button>
+                  <h2 className="text-xl font-semibold mb-2">{facility.name}</h2>
+                  <p className="text-gray-700 mb-4">
+                    Status:{" "}
+                    <span
+                      className={`font-semibold ${
+                        facility.availability_status
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {facility.availability_status ? "Available" : "Booked"}
+                    </span>
+                  </p>
+                  <button
+                    onClick={() => openBookingModal(facility)}
+                    className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+                  >
+                    Book Now
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Booking History Table */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4">Booking History</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="py-2 px-4 border-b text-left">Facility Name</th>
+                      <th className="py-2 px-4 border-b text-left">Start Date</th>
+                      <th className="py-2 px-4 border-b text-left">Start Time</th>
+                      <th className="py-2 px-4 border-b text-left">End Time</th>
+                      <th className="py-2 px-4 border-b text-left">Reason</th>
+                      <th className="py-2 px-4 border-b text-left">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookingHistory.map((booking) => (
+                      <tr key={booking.id}>
+                        <td className="py-2 px-4 border-b">{booking.facility_name}</td>
+                        <td className="py-2 px-4 border-b">{booking.start_date}</td>
+                        <td className="py-2 px-4 border-b">{booking.start_time}</td>
+                        <td className="py-2 px-4 border-b">{booking.end_time}</td>
+                        <td className="py-2 px-4 border-b">{booking.reason}</td>
+                        <td className="py-2 px-4 border-b">{booking.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          </>
         ) : (
           // Display pending approvals for HOD or Sport Head
           <div className="overflow-x-auto">
@@ -325,12 +371,22 @@ function FacilityView() {
             <form onSubmit={handleBookingSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Date
+                <p>Date</p>
+                From
                 </label>
                 <input
                   type="date"
-                  name="date"
-                  value={formData.date}
+                  name="start_date"
+                  value={formData.start_date}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                  required
+                />
+                To
+                <input
+                  type="date"
+                  name="end_date"
+                  value={formData.end_date}
                   onChange={handleInputChange}
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                   required
