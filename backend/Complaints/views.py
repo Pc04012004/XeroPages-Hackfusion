@@ -85,7 +85,12 @@ class ComplaintCreateView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         text = request.data.get("text", "")
-        anonymous = request.data.get("anonymous", False)
+        anonymous = request.data.get("anonymous")
+        if anonymous == "true":
+            anonymous = True
+        else:
+             anonymous=False
+           
         image = request.FILES.get("image")
         video = request.FILES.get("video")
 
@@ -115,7 +120,7 @@ class ComplaintCreateView(generics.CreateAPIView):
         # os.remove(temp_path)
     # ✅ Save the Complaint
         complaint = Complaint.objects.create(
-             student=request.user if not anonymous else None,
+             student=request.user ,
              anonymous=anonymous,
              text=text,
              image=image,
@@ -196,12 +201,22 @@ class VoteOnComplaintView(APIView):
 
 class ApprovedComplaintsView(APIView):
     def get(self, request):
-        complaints = Complaint.objects.filter(is_approved=True, is_blocked=False)
+        complaints = Complaint.objects.filter(approved=True)
         response_data = []
+
         for complaint in complaints:
             complaint_data = ComplaintSerializer(complaint).data
-            complaint_data["media"] = [media.file.url for media in complaint.media.all() if media.is_safe]
+            
+            # Add media files
+            complaint_data["media"] = []
+            if complaint.image:
+                complaint_data["media"].append(complaint.image.url)
+            if complaint.video:
+                complaint_data["media"].append(complaint.video.url)
+
             response_data.append(complaint_data)
+
+        return Response(response_data)
 
 
 class BoardApproveView(generics.UpdateAPIView):

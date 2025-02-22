@@ -23,6 +23,7 @@ urlpatterns = [
     path("election/",include('elections.urls')),
     path("leave/",include('Auto_Leave.urls')),
     path("campusfacility/",include('CampusFacility.urls')),
-    path("Complaints/",include('Complaints.urls')),
-    path("Event/",include('EventApproval.urls')),
+    path("complaints/",include('Complaints.urls')),
+    path("event/",include('EventApproval.urls')),
+    path("exam/",include('exam.urls')),
 ]

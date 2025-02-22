@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'authtools',
     'rest_framework',
     'rest_framework_simplejwt',
+    'exam',
 ]
 REST_FRAMEWORK = { 
     'DEFAULT_AUTHENTICATION_CLASSES': [ 

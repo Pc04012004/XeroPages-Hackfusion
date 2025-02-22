@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import RepresentativeStudent
 from .serializers import RepresentativeStudentSerializer
-
+from login.models import *
+from django.core.mail import send_mail
 # 🔹 Student Representative Views
 class RepresentativeStudentView(generics.ListCreateAPIView):
     """
@@ -22,6 +23,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Event
 from .serializers import EventSerializer
+
 class TrackApplicationsView(generics.ListAPIView):
     """
     API to track event budgets and sponsorships.
@@ -52,8 +54,13 @@ class EventView(generics.ListCreateAPIView):
         date = request.data.get("date")
         venue = request.data.get("venue")
         description = request.data.get("description", "")
-        representative = request.user.representative
-        faculty_coordinator = request.user
+        r_name= request.data.get("r_name")
+        f_name = request.data.get("f_name")
+        try:
+          representative = Custom_User.objects.get(full_name=r_name)
+          faculty_coordinator = Custom_User.objects.get(full_name=r_name)
+        except Custom_User.DoesNotExist:
+          return  Response({"error": "Name Not Correct Or Faculty doesn't exist "}, status=status.HTTP_400_BAD_REQUEST)
 
         event = Event.objects.create(
             name=name,
@@ -98,14 +105,14 @@ class EventBudgetView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         event_id = request.data.get("event")
         budget_amount = request.data.get("budget_amount")
-        budget_file = request.FILES.get("budget")
+        budget = request.data.get("budget")
 
         try:
             event = Event.objects.get(pk=event_id)
             if hasattr(event, "eventbudget"):
                 return Response({"error": "Budget already exists for this event"}, status=status.HTTP_400_BAD_REQUEST)
 
-            budget = EventBudget.objects.create(event=event, budget_amount=budget_amount, budget=budget_file)
+            budget = EventBudget.objects.create(event=event, budget_amount=budget_amount, budget=budget)
             budget.save()
 
             send_application_update("budget_added", budget)
@@ -129,8 +136,8 @@ class UpdateEventBudgetView(generics.UpdateAPIView):
                 return Response({"error": "Budget cannot be edited after approval"}, status=status.HTTP_400_BAD_REQUEST)
 
             budget.budget_amount = request.data.get("budget_amount", budget.budget_amount)
-            if "budget" in request.FILES:
-                budget.budget = request.FILES["budget"]
+            if "budget" in request.data:
+                budget.budget = request.data["budget"]
 
             budget.save()
             return Response({"message": "Budget updated successfully"}, status=status.HTTP_200_OK)
@@ -149,12 +156,17 @@ class ApproveBudgetByDeanView(generics.UpdateAPIView):
         budget.approved_by_dean_finance = True
         budget.can_edit = False  # Lock modifications
         budget.save()
-
         # Update event status
         event = budget.event
         event.status = "UNDER_REVIEW"
         event.save()
+        
+        subject = "Bed Rest Prescribed"
+        message = f"Your budget has be approved by Dean"
+        recipient_list = [event.faculty_coordinator.email, event.representative.desig_email]
 
+        send_mail(subject, message, "doctor@college.edu", recipient_list, fail_silently=False)
+        
         send_application_update("budget_approved_by_dean", budget)
         return Response({"message": "Budget approved by Dean of Finance"}, status=status.HTTP_200_OK)
 
@@ -168,7 +180,12 @@ class ApproveBudgetByDirectorView(generics.UpdateAPIView):
         budget = EventBudget.objects.get(pk=pk)
         budget.approved_by_director = True
         budget.save()
+        event=budget.event
+        subject = "Bed Rest Prescribed"
+        message = f"Your budget has be approved by Dean"
+        recipient_list = [event.faculty_coordinator.email, event.representative.desig_email]
 
+        send_mail(subject, message, "doctor@college.edu", recipient_list, fail_silently=False)
         send_application_update("budget_approved_by_director", budget)
         return Response({"message": "Budget approved by Director"}, status=status.HTTP_200_OK)
 
@@ -183,7 +200,12 @@ class RejectBudgetByDeanView(generics.UpdateAPIView):
             budget = EventBudget.objects.get(pk=pk)
             budget.dean_finance_comment = request.data.get("comment", "")
             budget.save()
+            event=budget.event
+            subject = "Bed Rest Prescribed"
+            message = f"Your budget has be approved by Dean"
+            recipient_list = [event.faculty_coordinator.email, event.representative.desig_email]
 
+            send_mail(subject, message, "doctor@college.edu", recipient_list, fail_silently=False)
             send_application_update("budget_rejected_by_dean", budget)
             return Response(
                 {"message": "Budget rejected by Dean of Finance", "comment": budget.dean_finance_comment},
@@ -260,7 +282,11 @@ class ApproveEventByDeanView(generics.UpdateAPIView):
             event.approved_by_dean = True
             event.status = "APPROVED_BY_DEAN"
             event.save()
+            subject = "Bed Rest Prescribed"
+            message = f"Your event has be approved by Dean"
+            recipient_list = [event.faculty_coordinator.email, event.representative.desig_email]
 
+            send_mail(subject, message, "doctor@college.edu", recipient_list, fail_silently=False)   
             send_application_update("event_approved_by_dean", event)
             return Response({"message": "Event approved by Dean of Students"}, status=status.HTTP_200_OK)
         except Event.DoesNotExist:
@@ -283,8 +309,81 @@ class ApproveEventByDirectorView(generics.UpdateAPIView):
             event.status = "FINAL_APPROVAL"
             event.public_visible = True  # Make event public
             event.save()
+            subject = "Bed Rest Prescribed"
+            message = f"Your budget has be approved by Director"
+            recipient_list = [event.faculty_coordinator.email, event.representative.desig_email]
 
+            send_mail(subject, message, "doctor@college.edu", recipient_list, fail_silently=False)
             send_application_update("event_final_approved", event)
             return Response({"message": "Event approved by Director, now public"}, status=status.HTTP_200_OK)
         except Event.DoesNotExist:
             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import EventExpense
+from .serializers import EventExpenseSerializer
+
+class AddEventExpenseView(generics.CreateAPIView):
+    """
+    API to add small expenses during the event.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = EventExpenseSerializer
+
+    def post(self, request, *args, **kwargs):
+        event_id = request.data.get("event")
+        description = request.data.get("description")
+        amount = request.data.get("amount")
+
+        try:
+            event = Event.objects.get(pk=event_id)
+            expense = EventExpense.objects.create(event=event, description=description, amount=amount)
+            expense.save()
+
+            return Response({"message": "Expense added successfully"}, status=status.HTTP_201_CREATED)
+        except Event.DoesNotExist:
+            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class ListEventExpensesView(generics.ListAPIView):
+    """
+    API to list all expenses for a specific event.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = EventExpenseSerializer
+
+    def get_queryset(self):
+        event_id = self.kwargs["pk"]
+        return EventExpense.objects.filter(event__id=event_id)
+
+class GenerateExpenseReportView(generics.RetrieveAPIView):
+    """
+    API to generate a final expense report for an event.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        event_id = self.kwargs["pk"]
+        try:
+            event = Event.objects.get(pk=event_id)
+            budget = EventBudget.objects.get(event=event)
+            expenses = EventExpense.objects.filter(event=event)
+
+            total_budget = budget.budget_amount
+            total_expenses = sum(expense.amount for expense in expenses)
+            remaining_budget = total_budget - total_expenses
+
+            report = {
+                "event_name": event.name,
+                "total_budget": total_budget,
+                "total_expenses": total_expenses,
+                "remaining_budget": remaining_budget,
+                "expenses": EventExpenseSerializer(expenses, many=True).data
+            }
+
+            return Response(report, status=status.HTTP_200_OK)
+        except Event.DoesNotExist:
+            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+        except EventBudget.DoesNotExist:
+            return Response({"error": "Budget not found for this event"}, status=status.HTTP_404_NOT_FOUND)

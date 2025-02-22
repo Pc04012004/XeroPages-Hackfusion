@@ -41,13 +41,21 @@ class Complaint(models.Model):
         reveal_votes = self.votes.filter(vote=True).count()
         return (reveal_votes / total_votes) > 0.5  # More than 50% votes to reveal
 
+    # def save(self, *args, **kwargs):
+    #     """
+    #     Override save method to automatically reveal identity if majority votes are reached.
+    #     """
+    #     if self.should_reveal_identity():
+    #         self.board_approved_identity = True
+    #     super().save(*args, **kwargs)
     def save(self, *args, **kwargs):
-        """
-        Override save method to automatically reveal identity if majority votes are reached.
-        """
-        if self.should_reveal_identity():
-            self.board_approved_identity = True
-        super().save(*args, **kwargs)
+    # Save the instance first to ensure it has a primary key
+     super().save(*args, **kwargs)
+    # Now check if the identity should be revealed
+     if self.should_reveal_identity():
+        self.board_approved_identity = True
+        # Save again to update the board_approved_identity field
+        super().save(*args,**kwargs)
     
 class ComplaintVote(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name="votes")

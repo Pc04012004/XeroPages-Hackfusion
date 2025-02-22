@@ -20,3 +20,11 @@ class EventSponsorshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventSponsorship
         fields = '__all__'
+        
+from rest_framework import serializers
+from .models import EventExpense
+
+class EventExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventExpense
+        fields = ['id', 'event', 'description', 'amount', 'date']
