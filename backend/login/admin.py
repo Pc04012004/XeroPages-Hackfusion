@@ -10,7 +10,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseRedirect
 from django.urls import path
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 User = get_user_model()
 def generate_random_username():
     """Generate a random username."""
@@ -66,13 +66,14 @@ from django.urls import path, reverse
 from django.utils.html import format_html
 from .models import Custom_User, UploadedCSV
 
+
 class UploadedCSVAdmin(admin.ModelAdmin):
     list_display = ("filename", "uploaded_at", "process_csv_button")
     ordering = ("-uploaded_at",)
 
     def process_csv(self, request, object_id):
-        """Process the uploaded CSV file and create users"""
-        uploaded_csv = UploadedCSV.objects.get(id=object_id)
+        """Process the uploaded CSV file and create users with @sggs.ac.in emails only"""
+        uploaded_csv = get_object_or_404(UploadedCSV, id=object_id)
 
         with open(uploaded_csv.file.path, "r", encoding="utf-8") as file:
             reader = csv.reader(file)
@@ -81,39 +82,51 @@ class UploadedCSVAdmin(admin.ModelAdmin):
 
             for row in reader:
                 try:
-                    full_name, email, role, department = row
+                    full_name, email, role, department = row  # Ensure 4 columns
                 except ValueError:
-                    messages.warning(request, "Incorrect CSV format. Expected 4 columns: full_name, last_name, email, role.")
+                    messages.warning(
+                        request,
+                        "Incorrect CSV format. Expected 4 columns: full_name, email, role, department."
+                    )
                     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
+                # Enforce only @sggs.ac.in emails
                 if not email.endswith("@sggs.ac.in"):
                     messages.warning(request, f"Skipped: {email} is not a valid college email.")
                     skipped_count += 1
                     continue  
 
+                # Skip existing users
                 if Custom_User.objects.filter(email=email).exists():
                     messages.warning(request, f"Skipped: {email} already exists.")
                     skipped_count += 1
                     continue  
 
-                password = random_password = get_random_string(12)
-                
+                # Generate password
+                password = get_random_string(12)
+
+                # Create user
                 user = Custom_User.objects.create(
                     email=email,
                     full_name=full_name,
                     role=role,
                     department=department,
                     username=email.split("@")[0],
-                    password=make_password(password),
+                    password=make_password(password),  # Store hashed password
                 )
 
-                send_mail(
-                    "Your College Account",
-                    f"Hello {full_name},\nYour temporary password is: {password}\nPlease reset it after logging in.",
-                    "admin@college.edu",
-                    [email],
-                    fail_silently=False,
-                )
+                # Send welcome email
+                try:
+                    send_mail(
+                        "Your College Account",
+                        f"Hello {full_name},\n\nYour temporary password is: {password}\n"
+                        "Please reset it after logging in.",
+                        "admin@sggs.ac.in",
+                        [email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    messages.warning(request, f"Email not sent to {email}. Error: {str(e)}")
 
                 created_count += 1
 

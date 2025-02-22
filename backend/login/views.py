@@ -11,7 +11,6 @@ from .models import *
 from django.db import transaction
 from rest_framework.decorators import api_view
 
-from rest_framework.permissions import BasePermission
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -160,23 +159,13 @@ class StudentProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
         profile = self.get_object()
         profile.delete()
         return Response({"message": "Profile deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-    
-class ORPermission(BasePermission):
-    def has_permission(self, request, view):
-        return (
-            IsFaculty().has_permission(request, view) or
-            IsDean_s().has_permission(request, view) or
-            IsDean_f().has_permission(request, view) or
-            IsDirector().has_permission(request, view) or
-            IsHOD().has_permission(request, view)
-        )
-
 
 class FacultyProfileView(generics.ListCreateAPIView):
     """
     Faculty can view their profile and create a new one.
     """
-    permission_classes = [IsAuthenticated]  # Use OR condition for roles
+
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     serializer_class = FacultyProfileSerializer
 
@@ -189,6 +178,7 @@ class FacultyProfileView(generics.ListCreateAPIView):
         if FacultyProfile.objects.filter(user=request.user).exists():
             return Response({"error": "Profile already exists"}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
+
 
 class UpdateFacultyProfile(generics.RetrieveUpdateAPIView):
     """
