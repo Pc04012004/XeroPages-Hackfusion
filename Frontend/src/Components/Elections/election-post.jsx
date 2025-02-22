@@ -1,69 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios';
 import NavBar from '../Homepage/navbar';
 import Footer from '../Homepage/footer';
 
 function ElectionPost() {
   const { postTitle } = useParams();
   const navigate = useNavigate();
-  const [electionPost, setElectionPost] = useState(null); // State to store the filtered post
-  const [totalVoters, setTotalVoters] = useState(0); // State to store the total number of voters
-  const [loading, setLoading] = useState(true); // State to handle loading state
-  const [error, setError] = useState(null); // State to handle errors
+  const [electionPost, setElectionPost] = useState(null);
+  const [totalVoters, setTotalVoters] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [candidates, setCandidates] = useState([]);
+  const [approvedCandidates, setApprovedCandidates] = useState([]);
+  const [unapprovedCandidates, setUnapprovedCandidates] = useState([]);
+  const [userRole, setUserRole] = useState(null);
+
+  // Fetch user role from local storage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.role) {
+      setUserRole(user.role);
+    }
+  }, []);
 
   // Fetch election posts from the API
   useEffect(() => {
     const fetchElectionPosts = async () => {
       try {
-        const accessToken = localStorage.getItem('access_token'); // Retrieve the access token from localStorage
+        const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
           throw new Error('No access token found. Please log in.');
         }
 
         const response = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
           headers: {
-            Authorization: `Bearer ${accessToken}`, // Include the access token in the request headers
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        // Filter the post whose position matches the postTitle parameter
         const filteredPost = response.data.find(post => post.position === postTitle);
         if (!filteredPost) {
           throw new Error('Election post not found.');
         }
 
-        setElectionPost(filteredPost); // Set the filtered post
-        setLoading(false); // Set loading to false after data is fetched
+        setElectionPost(filteredPost);
+        setLoading(false);
       } catch (err) {
-        setError(err.message); // Set error message if API call fails
-        setLoading(false); // Set loading to false
+        setError(err.message);
+        setLoading(false);
       }
     };
 
-    fetchElectionPosts(); // Call the function to fetch election posts
-  }, [postTitle]); // Re-run effect if postTitle changes
+    fetchElectionPosts();
+  }, [postTitle]);
 
   // Fetch voters from the API and calculate total voters for the post
   useEffect(() => {
     const fetchVoters = async () => {
       try {
-        const accessToken = localStorage.getItem('access_token'); // Retrieve the access token from localStorage
+        const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
           throw new Error('No access token found. Please log in.');
         }
 
         const response = await axios.get('http://127.0.0.1:8000/election/voterRegister', {
           headers: {
-            Authorization: `Bearer ${accessToken}`, // Include the access token in the request headers
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        // Filter voters by post ID
         if (electionPost) {
           const filteredVoters = response.data.filter(voter => voter.post === electionPost.id);
-          setTotalVoters(filteredVoters.length); // Set the total number of voters
+          setTotalVoters(filteredVoters.length);
         }
       } catch (err) {
         console.error('Error fetching voters:', err);
@@ -71,26 +81,150 @@ function ElectionPost() {
     };
 
     if (electionPost) {
-      fetchVoters(); // Call the function to fetch voters
+      fetchVoters();
     }
-  }, [electionPost]); // Re-run effect if electionPost changes
+  }, [electionPost]);
 
-  // Simulated data for candidates and nominees (replace with actual data from API if available)
-  const [approvedNominees, setApprovedNominees] = useState([
-    { name: "Shreya Kore", post: "CS", status: "Approved" },
-  ]);
-  const [pendingNominees, setPendingNominees] = useState([
-    { name: "Me Nahin Sangat Kon", post: "CS", status: "Pending" },
-  ]);
+  // Fetch candidates approved by the dean
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        let response;
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          throw new Error('No access token found. Please log in.');
+        }
 
-  const handleApprove = (name) => {
-    const nominee = pendingNominees.find(nominee => nominee.name === name);
-    setApprovedNominees([...approvedNominees, nominee]);
-    setPendingNominees(pendingNominees.filter(nominee => nominee.name !== name));
+        if (userRole !== 'student') {
+          response = await axios.get(`http://127.0.0.1:8000/election/candidates/${userRole}-approval/0/`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+        } else {
+          response = await axios.get(`http://127.0.0.1:8000/election/candidates/approved`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const transformedData = response.data.map((candidate) => {
+            const meets_eligibility = candidate.cgpa >= 7.5;
+
+            return {
+              id: candidate.id,
+              meets_eligibility,
+              name: candidate.name,
+              registration_number: candidate.registration_number,
+              department: candidate.department,
+              year: candidate.year,
+              is_cr_or_sic_member: candidate.is_cr_or_sic_member,
+              attendance_current_semester: candidate.attendance_current_semester,
+              attendance_previous_year: candidate.attendance_previous_year,
+              cgpa: candidate.cgpa,
+              no_backlogs: candidate.no_backlogs,
+              no_disciplinary_actions: candidate.no_disciplinary_actions,
+              iut_participation: candidate.iut_participation,
+              sports_captain_or_coordinator: candidate.sports_captain_or_coordinator,
+              is_hostel_resident: candidate.is_hostel_resident,
+              proof_document: candidate.proof_document,
+              manifesto: candidate.manifesto,
+              dean_approved: candidate.dean_approved,
+              director_approved: candidate.director_approved,
+              date_applied: candidate.date_applied,
+              user: candidate.user.id,
+              position_applied: candidate.position_applied.id,
+            };
+          });
+
+          response.data = transformedData;
+        }
+
+        if (electionPost) {
+          const filteredCandidates = response.data.filter(
+            candidate => candidate.position_applied === electionPost.id
+          );
+
+          const approved = filteredCandidates.filter(
+            candidate => candidate.dean_approved && candidate.director_approved
+          );
+          const unapproved = filteredCandidates.filter(
+            candidate => !candidate.dean_approved || !candidate.director_approved
+          );
+
+          setCandidates(filteredCandidates);
+          setApprovedCandidates(approved);
+          setUnapprovedCandidates(unapproved);
+        }
+      } catch (err) {
+        console.error('Error fetching candidates:', err);
+      }
+    };
+
+    if (electionPost && userRole) {
+      fetchCandidates();
+    }
+  }, [electionPost, userRole]);
+
+  // Handle approve candidate (for dean role)
+  const handleApprove = async (candidateId, userRole) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        throw new Error('No access token found. Please log in.');
+      }
+
+      const response = await axios.put(
+        `http://127.0.0.1:8000/election/candidates/${userRole}-approval/${candidateId}/`,
+        { dean_approved: true },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert('Candidate approved successfully!');
+        const updatedCandidates = candidates.map(candidate =>
+          candidate.id === candidateId ? { ...candidate, dean_approved: true } : candidate
+        );
+        setCandidates(updatedCandidates);
+      }
+    } catch (err) {
+      console.error('Error approving candidate:', err);
+    }
   };
 
-  const handleVote = (name) => {
-    alert(`Voted for ${name}`);
+  // Handle vote (for student role)
+  const handleVote = async (candidateId) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        throw new Error('No access token found. Please log in.');
+      }
+
+      const response = await axios.post(
+        'http://127.0.0.1:8000/election/vote/',
+        { candidate: candidateId },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Voted for Candidate');
+        navigate('/elections');
+      } else if (response.status === 403) {
+        alert(response.data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('you have already voted for this Post');
+    }
   };
 
   // Animation variants for sliding effect
@@ -100,15 +234,15 @@ function ElectionPost() {
   };
 
   if (loading) {
-    return <div className="text-center mt-8">Loading election post...</div>; // Show loading message
+    return <div className="text-center mt-8">Loading election post...</div>;
   }
 
   if (error) {
-    return <div className="text-center mt-8 text-red-600">Error: {error}</div>; // Show error message
+    return <div className="text-center mt-8 text-red-600">Error: {error}</div>;
   }
 
   if (!electionPost) {
-    return <div className="text-center mt-8">Election post not found.</div>; // Show message if post is not found
+    return <div className="text-center mt-8">Election post not found.</div>;
   }
 
   return (
@@ -136,10 +270,10 @@ function ElectionPost() {
             className="bg-white rounded-lg shadow-lg p-6 mb-8"
           >
             <h2 className="text-2xl font-semibold mb-4">Total Voters</h2>
-            <p className="text-3xl font-bold text-blue-600">{totalVoters}</p> {/* Display dynamic voter count */}
+            <p className="text-3xl font-bold text-blue-600">{totalVoters}</p>
           </motion.div>
 
-          {/* Live Leaderboard Section */}
+          {/* Approved Candidates Section */}
           <motion.div
             variants={cardVariants}
             initial="hidden"
@@ -147,19 +281,36 @@ function ElectionPost() {
             transition={{ delay: 0.4 }}
             className="bg-white rounded-lg shadow-lg p-6 mb-8"
           >
-            <h2 className="text-2xl font-semibold mb-6">Live Leaderboard for Candidates</h2>
-            {[
-              { name: "Shreya Kore", votes: 33 },
-              { name: "Prasad", votes: 20 },
-            ].map((candidate, index) => (
-              <div key={index} className="flex justify-between items-center mb-4">
-                <span className="text-lg">{candidate.name}</span>
-                <span className="text-lg font-bold text-green-600">{candidate.votes} votes</span>
-              </div>
-            ))}
+            <h2 className="text-2xl font-semibold mb-6">Approved Candidates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {approvedCandidates.map((candidate) => (
+                <motion.div
+                  key={candidate.id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.1 }}
+                  className="bg-gray-50 rounded-lg shadow-md p-4"
+                >
+                  <h3 className="text-xl font-bold mb-2">{candidate.name}</h3>
+                  <p className="text-gray-600">Registration Number: {candidate.registration_number}</p>
+                  <p className="text-gray-600">Department: {candidate.department}</p>
+                  <p className="text-gray-600">Year: {candidate.year}</p>
+                  <p className="text-gray-600">CGPA: {candidate.cgpa}</p>
+                  {userRole === 'student' && (
+                    <button
+                      onClick={() => handleVote(candidate.id)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 mt-4"
+                    >
+                      Vote Now
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
 
-          {/* Approved Nominees Section */}
+          {/* Unapproved Candidates Section */}
           <motion.div
             variants={cardVariants}
             initial="hidden"
@@ -167,63 +318,60 @@ function ElectionPost() {
             transition={{ delay: 0.6 }}
             className="bg-white rounded-lg shadow-lg p-6 mb-8"
           >
-            <h2 className="text-2xl font-semibold mb-6">Registered Approved Election Nominees</h2>
+            <h2 className="text-2xl font-semibold mb-6">Pending Approval Candidates</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {approvedNominees.map((nominee, index) => (
+              {unapprovedCandidates.map((candidate) => (
                 <motion.div
-                  key={index}
+                  key={candidate.id}
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: 0.1 }}
                   className="bg-gray-50 rounded-lg shadow-md p-4"
                 >
-                  <h3 className="text-xl font-bold mb-2">{nominee.name}</h3>
-                  <p className="text-gray-600">Post: {nominee.post}</p>
-                  <p className="text-gray-600">Status: {nominee.status}</p>
-                  <div className="flex space-x-4 mt-4">
-                    <button
-                      onClick={() => handleVote(nominee.name)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                    >
-                      Vote Now
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+                  <h3 className="text-xl font-bold mb-2">{candidate.name}</h3>
+                  <p className="text-gray-600">Registration Number: {candidate.registration_number}</p>
+                  <p className="text-gray-600">Department: {candidate.department}</p>
+                  <p className="text-gray-600">Year: {candidate.year}</p>
+                  <p className="text-gray-600">CGPA: {candidate.cgpa}</p>
 
-          {/* Pending Nominees Section */}
-          <motion.div
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.8 }}
-            className="bg-white rounded-lg shadow-lg p-6 mb-8"
-          >
-            <h2 className="text-2xl font-semibold mb-6">Registered Pending Election Nominees</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {pendingNominees.map((nominee, index) => (
-                <motion.div
-                  key={index}
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-gray-50 rounded-lg shadow-md p-4"
-                >
-                  <h3 className="text-xl font-bold mb-2">{nominee.name}</h3>
-                  <p className="text-gray-600">Post: {nominee.post}</p>
-                  <p className="text-gray-600">Status: {nominee.status}</p>
-                  <div className="flex space-x-4 mt-4">
-                    <button
-                      disabled
-                      className="bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed"
-                    >
-                      Vote Now
-                    </button>
+                  {/* Additional Details */}
+                  <div className="mt-4 overflow-y-auto max-h-48">
+                    <p className="text-gray-600">
+                      <span className="font-semibold">No Backlogs:</span> {candidate.no_backlogs ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">No Disciplinary Actions:</span> {candidate.no_disciplinary_actions ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Sports Captain/Coordinator:</span> {candidate.sports_captain_or_coordinator ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Hostel Resident:</span> {candidate.is_hostel_resident ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Manifesto:</span> {candidate.manifesto}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Dean Approved:</span> {candidate.dean_approved ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Director Approved:</span> {candidate.director_approved ? 'Yes' : 'No'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-semibold">Date Applied:</span> {new Date(candidate.date_applied).toLocaleDateString()}
+                    </p>
                   </div>
+
+                  {/* Approve Button */}
+                  {(userRole === 'dean_student' || userRole === 'director') && (
+                    <button
+                      onClick={() => handleApprove(candidate.id, userRole)}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 mt-4"
+                    >
+                      Approve Candidate
+                    </button>
+                  )}
                 </motion.div>
               ))}
             </div>

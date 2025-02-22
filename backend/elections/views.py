@@ -152,7 +152,7 @@ class VoterRegistrationView(generics.ListCreateAPIView):
     - Fetches all registered voters (GET request).
     """
 
-    permission_classes = [permissions.IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request, *args, **kwargs):

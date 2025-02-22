@@ -11,6 +11,11 @@ import StudentEditProfile from './Components/Profile/student-edit.jsx';
 import FacultyEditProfile from './Components/Profile/faculty-edit.jsx';
 import ProfilePage from './Components/Profile/profile-home.jsx';
 import StudentDashboard from './Components/Health-Leave/hl-student.jsx';
+import LeaveHistory from './Components/Health-Leave/leave-history.jsx';
+import WardenDashboard from './Components/Health-Leave/hl-warden.jsx';
+import DoctorDashboard from './Components/Health-Leave/hl-doctor.jsx';
+import HodDashboard from './Components/Health-Leave/hl-hod.jsx';
+import SecurityDashboard from './Components/Health-Leave/hl-security.jsx';
 
 function App() {
   return (
@@ -22,12 +27,20 @@ function App() {
         <Route path="/elections/register-voter" element={<RegisterVoter />} />
         <Route path="/elections/register-candidate" element={<RegisterCandidate />} />
         <Route path="/elections/:postTitle" element={<ElectionPost />} />
-        <Route path="/elections/nominee/:nomineeName" element={<ElectionNominee />} />
+        <Route path="/elections/nominee/" element={<ElectionNominee />} />
         <Route path="elections/admin/:nominee" element={<AdminNominee />} />
         <Route path="/home/profile/student" element={<StudentEditProfile />} />
         <Route path="/home/profile/faculty" element={<FacultyEditProfile />} />
         <Route path="/home/profile" element={<ProfilePage />} />
-        <Route path="/home/health-leave" element={<StudentDashboard />} />
+        <Route path="/home/health-notifications/student" element={<StudentDashboard />} />
+        <Route path="/home/health-notifications/student/history" element={<LeaveHistory />} />
+        <Route path="/home/health-notifications/hod" element={<HodDashboard />} />
+        <Route path="/home/health-notifications/warden" element={<WardenDashboard />} />
+        <Route path="/home/health-notifications/doctor" element={<DoctorDashboard />} />
+        <Route path="/home/health-notifications/security)" element={<SecurityDashboard />} />
+
+        
+
          
 
       </Routes>

@@ -290,6 +290,7 @@ class SecurityVerificationView(generics.UpdateAPIView):
         # Send Email to Parents after final approval
         student = leave_request.student
         profile = StudentProfile.objects.get(user=student)
+        print(profile)
         if profile.parent_email:
             subject = f"Leave Approved for {student.full_name} {student.last_name}"
             message = f"""

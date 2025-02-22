@@ -65,7 +65,7 @@ function RegisterVoter() {
       }
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/voterRegister', // Update the API endpoint
+        'http://127.0.0.1:8000/election/voterRegister/', // Update the API endpoint
         formData,
         {
           headers: {
@@ -83,7 +83,7 @@ function RegisterVoter() {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      alert('you have already voted for this candidate');
     }
   };
 
