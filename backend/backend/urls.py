@@ -26,4 +26,5 @@ urlpatterns = [
     path("complaints/",include('Complaints.urls')),
     path("event/",include('EventApproval.urls')),
     path("exam/",include('exam.urls')),
+    path("feedback/",include('feedback.urls'))
 ]

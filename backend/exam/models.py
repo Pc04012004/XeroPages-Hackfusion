@@ -1,9 +1,4 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
-
-from django.db import models
 from django.contrib.auth import get_user_model
 
 Custom_User = get_user_model()
@@ -47,7 +42,5 @@ class Announcement(models.Model):
     pdf = models.FileField(upload_to='announcements/', null=True, blank=True)
     time = models.DateTimeField(auto_now_add=True)  # Automatically sets when the record is created
 
-    def _str_(self):
+    def __str__(self):
         return self.title  # Returns the announcement title as a string representation
-    
-    

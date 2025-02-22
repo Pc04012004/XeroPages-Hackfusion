@@ -20,9 +20,9 @@ class AddCheatingRecordView(APIView):
 
     def post(self, request):
         # Check if the user has the required role (faculty, HOD, or admin)
-        # if request.user.role not in ["faculty", "hod", "admin"]:
-        #     return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
-        # Pass the request data to the serializer
+        if request.user.role not in ["faculty", "hod", "admin"]:
+            return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = CheatingRecordSerializer(data=request.data)
 
         if serializer.is_valid():

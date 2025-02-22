@@ -77,6 +77,7 @@ class Custom_User(AbstractUser):
         ("warden", "Warden"),
         ("security","Security Guard"),
         ("board_member","Board Member"),
+        ("exam_controller","Exam Controller"),
         ("admin", "Admin"),
     ]
 

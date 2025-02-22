@@ -10,11 +10,17 @@ from rest_framework.views import APIView
 from .models import Announcement
 from .serializers import AnnouncementSerializer
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Announcement
+from .serializers import AnnouncementSerializer
+
 class AnnouncementListView(APIView):
     """
     API View to list all announcements.
-    - All announcements (common + result) are visible.
-    - Access to result PDFs is restricted.
+    - General announcements are visible to all authenticated users.
+    - Result announcements are visible only to students from the same department.
     """
 
     def get(self, request, *args, **kwargs):
@@ -25,45 +31,31 @@ class AnnouncementListView(APIView):
         response_data = []
         for announcement in serializer.data:
             if announcement["announcement_type"] == "result":
-                # Restrict PDF access
-                if request.user.is_authenticated:
-                    if request.user.role == "director" or request.user.department == announcement["department"]:
-                        response_data.append(announcement)  # Full access
-                    else:
-                        announcement["pdf"] = None  # Hide PDF
-                        announcement["error"] = "Access denied: You are not authorized to view this result PDF."
-                        response_data.append(announcement)
+                # Restrict result announcements to same department
+                if request.user.is_authenticated and request.user.department == announcement["department"]:
+                    response_data.append(announcement)  # Full access
                 else:
-                    announcement["pdf"] = None  # Hide PDF for unauthenticated users
-                    announcement["error"] = "Access denied: Please log in to view this result PDF."
+                    announcement["pdf"] = None  # Hide PDF
+                    announcement["error"] = "Access denied: You are not authorized to view this result PDF."
                     response_data.append(announcement)
             else:
-                response_data.append(announcement)  # Common announcements are fully visible
+                # General announcements are visible to all authenticated users
+                if request.user.is_authenticated:
+                    response_data.append(announcement)
+                else:
+                    announcement["error"] = "Access denied: Please log in to view this announcement."
+                    response_data.append(announcement)
 
         return Response(response_data, status=status.HTTP_200_OK)
 
-class AnnouncementCreateUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    API View to:
-    - Update an announcement (PUT/PATCH)
-    - Delete an announcement (DELETE)
-    - Restricted to Examination department only.
-    """
-
-    queryset = Announcement.objects.all()
-    serializer_class = AnnouncementSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def has_permission(self, request, view):
-        if request.user.department == "Administration" and request.user.role == "examination":
-            return True
-        return Response({"error": "Access denied: You are not authorized to modify announcements."},
-                        status=status.HTTP_403_FORBIDDEN)
+from rest_framework import generics, permissions
+from .models import Announcement
+from .serializers import AnnouncementSerializer
 
 class AnnouncementCreateView(generics.CreateAPIView):
     """
     API View to create an announcement.
-    - Only examination department can create.
+    - Only Exam Controller can create announcements.
     """
 
     queryset = Announcement.objects.all()
@@ -71,15 +63,51 @@ class AnnouncementCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        """Ensure only Examination Department can create announcements."""
-        if self.request.user.department == "Administration" and self.request.user.role == "examination":
+        """Ensure only Exam Controller can create announcements."""
+        if self.request.user.role == "exam_controller":
             serializer.save()
         else:
-            raise permissions.PermissionDenied("Access denied: Only the Examination Department can create announcements.")
+            raise permissions.PermissionDenied("Access denied: Only the Exam Controller can create announcements.")
+        
+class AnnouncementUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API View to:
+    - Update an announcement (PUT/PATCH)
+    - Delete an announcement (DELETE)
+    - Restricted to Exam Controller only.
+    """
 
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def has_permission(self, request, view):
+        if request.user.role == "exam_controller":
+            return True
+        return Response({"error": "Access denied: You are not authorized to modify announcements."},
+                        status=status.HTTP_403_FORBIDDEN)
+    
+class AnnouncementUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API View to:
+    - Update an announcement (PUT/PATCH)
+    - Delete an announcement (DELETE)
+    - Restricted to Exam Controller only.
+    """
+
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def has_permission(self, request, view):
+        if request.user.role == "exam_controller":
+            return True
+        return Response({"error": "Access denied: You are not authorized to modify announcements."},
+                        status=status.HTTP_403_FORBIDDEN)
+    
 class AnnouncementPDFView(APIView):
     """
-    API View to handle secure PDF access.
+    API View to handle secure PDF access for result announcements.
     """
 
     def get(self, request, announcement_id):
@@ -92,7 +120,7 @@ class AnnouncementPDFView(APIView):
                     return Response({"error": "Access denied: Please log in to access this document."},
                                     status=status.HTTP_401_UNAUTHORIZED)
 
-                if request.user.role != "director" and request.user.department != announcement.department:
+                if request.user.department != announcement.department:
                     return Response({"error": "Access denied: You are not authorized to view this result PDF."},
                                     status=status.HTTP_403_FORBIDDEN)
 
