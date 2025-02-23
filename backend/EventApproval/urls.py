@@ -26,4 +26,8 @@ urlpatterns = [
     path("event-approve/dean/<int:pk>/", ApproveEventByDeanView.as_view(), name="approve-event-dean"),  # Approve event by Dean
     path("event-approve/director/<int:pk>/", ApproveEventByDirectorView.as_view(), name="approve-event-director"),  # Approve event by Director (Final Approval)
     path("track-applications/", TrackApplicationsView.as_view(), name="track-applications"),
+
+    path('event/<int:pk>/add-expense/', AddEventExpenseView.as_view(), name='add-event-expense'),
+    path('event/<int:pk>/expenses/', ListEventExpensesView.as_view(), name='list-event-expenses'),
+    path('event/<int:pk>/generate-report/', GenerateExpenseReportView.as_view(), name='generate-expense-report'),
 ]

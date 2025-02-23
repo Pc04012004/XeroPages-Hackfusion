@@ -22,7 +22,11 @@ class AddCheatingRecordView(APIView):
         # Check if the user has the required role (faculty, HOD, or admin)
         if request.user.role not in ["faculty", "hod", "admin"]:
             return Response({"error": "Unauthorized. Only faculty, HOD, or admin can add cheating records."}, status=status.HTTP_403_FORBIDDEN)
+<<<<<<< HEAD
+
+=======
         # Pass the request data to the serializer
+>>>>>>> main
         serializer = CheatingRecordSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -92,10 +96,18 @@ class ComplaintCreateView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         text = request.data.get("text", "")
         anonymous = request.data.get("anonymous")
+<<<<<<< HEAD
+        if anonymous == "true":
+            anonymous = True
+        else:
+             anonymous=False
+           
+=======
         if(anonymous=="true"):
             anonymous = True
         else:
             anonymous = False
+>>>>>>> main
         image = request.FILES.get("image")
         video = request.FILES.get("video")
 
@@ -119,6 +131,18 @@ class ComplaintCreateView(generics.CreateAPIView):
 
             if not moderate_video(temp_path):  # 🚀 Call video moderation function
                os.remove(temp_path)  # 🗑 Cleanup
+<<<<<<< HEAD
+               return Response({"error": "Inappropriate video detected!"}, status=400)    
+        # os.remove(temp_path)
+    # ✅ Save the Complaint
+        complaint = Complaint.objects.create(
+             student=request.user ,
+             anonymous=anonymous,
+             text=text,
+             image=image,
+             video=video,
+          )
+=======
                return Response({"error": "Inappropriate video detected!"},status=400)
             
         print("1")
@@ -141,6 +165,7 @@ class ComplaintCreateView(generics.CreateAPIView):
         #     complaint.save()  # Save again to update the student field
 
         # Return the serialized complaint
+>>>>>>> main
         return Response(ComplaintSerializer(complaint).data, status=201)
 
     # def post(self, request, *args, **kwargs):
@@ -232,7 +257,10 @@ class ApprovedComplaintsView(APIView):
 
         return Response(response_data)
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> main
 
 class BoardApproveView(generics.UpdateAPIView):
     queryset = Complaint.objects.all()

@@ -1,31 +1,18 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-import csv
-from rest_framework import generics
-# import matplotlib.pyplot as plt
-from login.serializers import CommentSerializer
-# from .serializers import *
-from .models import *
-# Create your views here.
-
-from django.db import transaction
-from rest_framework.decorators import api_view
-
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-from django.db import transaction
-# Create your views here.
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework import generics, status
-from django.contrib.auth import authenticate
-from .models import Custom_User,StudentProfile,FacultyProfile
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.shortcuts import get_object_or_404 
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import Custom_User, StudentProfile, FacultyProfile
+from .serializers import StudentProfileSerializer, FacultyProfileSerializer
+from .permissions import IsStudent, IsFaculty
+
 
 class LoginView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
@@ -52,10 +39,6 @@ class LoginView(generics.CreateAPIView):
         else:
             return Response({"error": "Wrong password"}, status=401)
 
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -93,10 +76,6 @@ class ChangePasswordView(generics.UpdateAPIView):
 
         return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
     
-
-from rest_framework.permissions import IsAuthenticated
-from .permissions import IsStudent, IsFaculty, IsHOD, IsDean_f,IsDean_s, IsDirector
-from .serializers import StudentProfileSerializer, FacultyProfileSerializer
 
 
 # class StudentProfile(generics.ListCreateAPIView):
@@ -142,7 +121,8 @@ class CreateStudentProfileView(generics.CreateAPIView):
 
 #     def get_object(self):
 #         """Ensure students can only update their own profile."""
-#         return get_object_or_404(StudentProfile, user=self.request.user)  
+#         return get_object_or_404(StudentProfile, user=self.request.user) 
+#  
 class StudentProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     """API to retrieve, update, and delete the student's profile."""
     permission_classes = [IsAuthenticated, IsStudent]

@@ -11,6 +11,7 @@ class RepresentativeStudent(models.Model):
         ("CLUB_PRESIDENT", "Club President"),
     ]
     student = models.OneToOneField(Custom_User, on_delete=models.CASCADE)
+    desig_email = models.EmailField(unique=True,default="none")
     designation = models.CharField(max_length=50, choices=DESIGNATION_CHOICES)
 
 
@@ -43,7 +44,7 @@ class EventBudget(models.Model):
     """Model for Event Budgets"""
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name="eventbudget")
     budget_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    budget = models.FileField(upload_to="budgets/")  # Upload directory for budgets
+    budget = models.TextField()
     approved_by_dean_finance = models.BooleanField(default=False)
     approved_by_director = models.BooleanField(default=False)
     priority_level = models.IntegerField(default=0)
@@ -58,7 +59,17 @@ class EventSponsorship(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="sponsorships")
     sponsor_name = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    sponsorship_document = models.FileField(upload_to="sponsorships/")  # Upload directory for sponsorships
+    sponsorship_details = models.TextField(default="none")
 
     def __str__(self):
         return f"{self.sponsor_name} - ₹{self.amount} for {self.event.name}"
+    
+class EventExpense(models.Model):
+    """Model for tracking small expenses during the event"""
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="expenses")
+    description = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.description} - ₹{self.amount} for {self.event.name}"
