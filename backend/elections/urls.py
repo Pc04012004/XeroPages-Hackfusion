@@ -13,19 +13,6 @@ urlpatterns = [
 
        # API for casting a vote (Phase 1: Voting Day)
     path('cast_vote/', CastVoteView.as_view(), name='cast_vote'),
-<<<<<<< HEAD
-=======
-
-    # API for starting the counting process (Phase 2: Counting Day)
-    path('start_counting/', StartCountingView.as_view(), name='start_counting'),
-
-    # API for counting votes in chunks of 10 (Phase 2: Counting Day)
-    path('count_votes/', count_votes, name='count_votes'),
-
-    # API for fetching the leaderboard (Phase 2: Counting Day)
-    path('get_leaderboard/<int:post_id>/', get_leaderboard, name='get_leaderboard'),
-
->>>>>>> main
     path('leaderboard/<int:post_id>/', LeaderboardView.as_view(), name='leaderboard'),
     path('start_counting/', StartCountingView.as_view(), name='start-counting'),
   # API to fetch leaderboard

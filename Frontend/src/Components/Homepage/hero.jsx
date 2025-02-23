@@ -94,7 +94,7 @@ function Hero(props) {
     {
       title: "Transparent College Budget & Sponsorship Tracking",
       description: "Track college budgets and sponsorships with full transparency.",
-      link: "/budget-tracking",
+      link: "/home/budget-sponsor",
       overview: {
         latestUpdate: "New sponsorship from TechCorp: $10,000",
         status: "Approved",
@@ -102,13 +102,13 @@ function Hero(props) {
       },
     },
     {
-      title: "Restricted Access for College Members Only",
-      description: "Accessible only via college email IDs to ensure authenticity.",
-      link: "/restricted-access",
+      title: "Support Bot",
+      description: "helps you navigate throughout website, clear all the Queries and provides assistance",
+      link: "/home/mental-health",
       overview: {
         latestActivity: "New login from admin@college.com",
-        status: "Secure",
-        details: "System access is restricted to authorized users.",
+        status: "Open",
+        details: "Address any Queries related to website",
       },
     },
   ];
