@@ -9,6 +9,7 @@ function ElectionPost() {
   const { postTitle } = useParams();
   const navigate = useNavigate();
   const [electionPost, setElectionPost] = useState(null);
+  const [p_id, setp_id] = useState(null); // State to store the post ID
   const [totalVoters, setTotalVoters] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,6 +40,9 @@ function ElectionPost() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
+        // Set the post ID
+        setp_id(response.data[0].id);
 
         const filteredPost = response.data.find(post => post.position === postTitle);
         if (!filteredPost) {
@@ -197,16 +201,18 @@ function ElectionPost() {
   };
 
   // Handle vote (for student role)
-  const handleVote = async (candidateId) => {
+  const handleVote = async (candidateId, postId) => {
     try {
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
         throw new Error('No access token found. Please log in.');
       }
+      console.log(candidateId)
+      console.log(postId)
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/vote/',
-        { candidate: candidateId },
+        'http://127.0.0.1:8000/election/cast_vote/',
+        { candidate_id: candidateId, post_id: postId }, // Pass both candidate_id and post_id
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -223,7 +229,7 @@ function ElectionPost() {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('you have already voted for this Post');
+      alert('You have already voted for this Post');
     }
   };
 
@@ -299,7 +305,7 @@ function ElectionPost() {
                   <p className="text-gray-600">CGPA: {candidate.cgpa}</p>
                   {userRole === 'student' && (
                     <button
-                      onClick={() => handleVote(candidate.id)}
+                      onClick={() => handleVote(candidate.id, p_id)} // Pass candidate.id and p_id
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 mt-4"
                     >
                       Vote Now
