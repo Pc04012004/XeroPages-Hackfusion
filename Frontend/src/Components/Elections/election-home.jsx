@@ -72,7 +72,7 @@ function ElectionHome() {
     fetchElectionData();
   }, [navigate]);
 
-  const handleBtnClick = async (candidateId) => {
+  const handleBtnClick = async (candidateId,post_id) => {
     try {
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
@@ -80,8 +80,8 @@ function ElectionHome() {
       }
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/vote/',
-        { candidate: candidateId },
+        'http://127.0.0.1:8000/election/cast_vote/',
+        { candidate_id: candidateId ,post_id:post_id},
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -261,7 +261,7 @@ function ElectionHome() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleBtnClick(nominee.id);
+                        handleBtnClick(nominee.id, nominee.position_applied.id);
                       }}
                       className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full w-full hover:bg-red-700 transition-colors duration-300"
                     >
@@ -273,6 +273,12 @@ function ElectionHome() {
             </div>
           </div>
         </div>
+        <h2 className="text-2xl font-semibold text-center mb-6">Election Results:</h2>
+        <button
+                      onClick={(e) => {navigate("/elections/results")}}
+                      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full w-full hover:bg-red-700 transition-colors duration-300"
+                    > Show Results</button>
+        
       </div>
       <Footer />
     </>

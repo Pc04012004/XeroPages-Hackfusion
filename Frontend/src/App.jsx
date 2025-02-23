@@ -20,6 +20,7 @@ import FacilityView from './Components/CampusFacility/facility-view.jsx';
 import MentalHealth from './Components/Mental-Health/mental-health.jsx';
 import AnonymousComplaintSystem from './Components/Complaints/complaint.jsx';
 import CheatingRecordSystem from './Components/Complaints/cheating.jsx';
+import ElectionResults from './Components/Elections/election-result.jsx';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         <Route path="/home/mental-health" element={<MentalHealth />} />
         <Route path="/home/complaints" element={<AnonymousComplaintSystem />} />
         <Route path="/home/cheating" element={<CheatingRecordSystem />} />
+        <Route path="/elections/results" element = {<ElectionResults />} />
 
         
 
