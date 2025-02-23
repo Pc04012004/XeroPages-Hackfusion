@@ -53,6 +53,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "backend\your_google_credentials.
 #     print("run")
 #     return annotations.adult != 4 and annotations.violence != 4  # ✅ True if safe
 def moderate_image(image_path):
+    print("acess")
     client = vision.ImageAnnotatorClient()
     
     with open(image_path, "rb") as image_file:
@@ -101,6 +102,7 @@ def upload_to_gcs(local_file_path, destination_blob_name):
 #     return True  # ✅ Safe Content
 
 def moderate_video(video_path):
+    print("video")
     """Detects explicit content in a video using Google Video Intelligence API."""
     client = videointelligence.VideoIntelligenceServiceClient()
 

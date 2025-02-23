@@ -10,5 +10,4 @@ urlpatterns = [
     path('api/complaints/<int:complaint_id>/vote/', VoteOnComplaintView.as_view(), name='vote-on-complaint'),
     path("submit-complaint/", ComplaintCreateView.as_view(), name="submit-complaint"),
     path("complaints/", ApprovedComplaintsView.as_view(), name="approved-complaints"),
-
 ]

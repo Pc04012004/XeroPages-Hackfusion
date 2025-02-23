@@ -31,7 +31,7 @@ function Home() {
         }
 
         let response;
-        if (["faculty", "dean_student", "hod", "director", "warden", "security)", "doctor", "sport_head"].includes(parsedUser?.role)) {
+        if (["faculty", "dean_student", "hod", "director", "warden", "security)", "doctor", "sport_head", "board_member"].includes(parsedUser?.role)) {
           // Fetch faculty profile
           response = await axios.get(
             `http://127.0.0.1:8000/auth/faculty/profile/`, // Ensure the correct endpoint

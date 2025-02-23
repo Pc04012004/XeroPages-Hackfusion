@@ -71,7 +71,14 @@ class VoteCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoteCount
         fields = ['id', 'candidate', 'candidate_name', 'post', 'post_name', 'vote_count']
+<<<<<<< HEAD
         
+=======
+
+
+from rest_framework import serializers
+
+>>>>>>> main
 class CastVoteSerializer(serializers.Serializer):
     post_id = serializers.IntegerField(required=True)
     candidate_id = serializers.IntegerField(required=True)

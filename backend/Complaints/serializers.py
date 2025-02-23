@@ -48,7 +48,7 @@ class ComplaintVoteSerializer(serializers.ModelSerializer):
 class ComplaintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
-        fields = ['id', 'student', 'anonymous', 'text', 'image', 'video', 'approved', 'board_approved_identity', 'created_at']
+        fields = "__all__"
 
     def to_representation(self, instance):
         """

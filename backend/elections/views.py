@@ -154,6 +154,16 @@ class ApprovedCandidatesPublicView(generics.ListAPIView):
     serializer_class = CandidateSerializer_d
 
 
+<<<<<<< HEAD
+=======
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from .models import Voter, ElectionPost
+from .serializers import *
+from login.permissions import IsStudent
+
+>>>>>>> main
 class VoterRegistrationView(generics.ListCreateAPIView):
     """
     API for voter registration:
@@ -215,9 +225,59 @@ class VoterRegistrationView(generics.ListCreateAPIView):
         return Response(VoterSerializer(voter).data, status=status.HTTP_201_CREATED)
 
 
+<<<<<<< HEAD
 class CastVoteView(CreateAPIView):
     serializer_class = CastVoteSerializer
 
+=======
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from .models import VoteCount, Candidate, ElectionPost, Voter, VoterVote
+from .serializers import VoteCountSerializer
+from .redis_leaderboard import RedisLeaderboard  # Import the class
+
+leaderboard = RedisLeaderboard()  # Create one instance to use across views
+
+# class CastVoteView(generics.CreateAPIView):
+#     permission_classes = [permissions.IsAuthenticated, IsStudent]
+#     serializer_class = VoteCountSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         candidate_id = request.data.get("candidate")
+#         candidate = get_object_or_404(Candidate, id=candidate_id)
+#         post = candidate.position_applied 
+
+#         voter = Voter.objects.filter(user=request.user).first()
+#         if not voter:
+#             return Response({"error": "You are not registered as a voter."}, status=status.HTTP_403_FORBIDDEN)
+
+#         if VoterVote.objects.filter(voter=voter, post=post).exists():
+#             return Response({"error": "You have already voted for this post."}, status=status.HTTP_403_FORBIDDEN)
+
+#         VoterVote.objects.create(voter=voter, post=post, candidate=candidate)
+
+#         # Update VoteCount in the database
+#         vote_count, created = VoteCount.objects.get_or_create(candidate=candidate, post=post)
+#         vote_count.vote_count += 1
+#         vote_count.save()
+
+#         # Update Redis leaderboard
+#         leaderboard.add_vote(candidate.user.full_name)
+
+#         return Response(
+#             {"message": f"Vote successfully cast for {candidate.user.full_name} in {post.position}."},
+#             status=status.HTTP_201_CREATED
+#         )
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.generics import CreateAPIView
+
+class CastVoteView(CreateAPIView):
+    serializer_class = CastVoteSerializer
+
+>>>>>>> main
     def create(self, request, *args, **kwargs):
         # Get data from the request
         post_id = request.data.get('post_id')
@@ -247,16 +307,27 @@ class CastVoteView(CreateAPIView):
         VoterVote.objects.create(post=post, candidate=candidate)
 
         return Response({'message': 'Vote cast successfully!'}, status=status.HTTP_201_CREATED)
+<<<<<<< HEAD
     
 class StartCountingView(APIView):
     def post(self, request):
         post_id = request.data.get('post_id')
         post = ElectionPost.objects.get(id=post_id)
+=======
 
-        # Fetch all votes for the post
-        votes = VoterVote.objects.filter(post=post)
-        candidates = Candidate.objects.filter(position_applied=post)
 
+
+# from django.shortcuts import get_object_or_404
+# from django.http import JsonResponse
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status
+# from .models import ElectionPost, VoterVote, Candidate
+# import redis
+>>>>>>> main
+
+
+<<<<<<< HEAD
         # Initialize Redis leaderboard
         redis_key = f'leaderboard:post:{post_id}'
         redis_client.delete(redis_key)  # Clear previous leaderboard
@@ -503,6 +574,37 @@ class LeaderboardView(APIView):
 
 
 
+=======
+# class StartCountingView(APIView):
+#     def post(self, request, *args, **kwargs):
+#         post_id = request.data.get('post_id')
+#         if not post_id:
+#             return Response({'error': 'post_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+#         post = get_object_or_404(ElectionPost, id=post_id)
+#         post.phase = 'counting'
+#         post.save()
+
+#         redis_leaderboard_key = f'leaderboard:post:{post_id}'
+#         redis_client.delete(redis_leaderboard_key)
+
+#         votes = VoterVote.objects.filter(post=post)
+#         candidates = Candidate.objects.filter(position_applied=post)
+
+#         for candidate in candidates:
+#             vote_count = votes.filter(candidate=candidate).count()
+#             floor_count = (vote_count // 10) * 10
+#             redis_client.zadd(redis_leaderboard_key, {candidate.name: floor_count})
+
+#         return Response({'message': 'Counting started! Leaderboard initialized.'}, status=status.HTTP_200_OK)
+    
+
+@csrf_exempt
+def count_votes(request):
+    if request.method == 'POST':
+        post_id = request.POST.get('post_id')
+        post = get_object_or_404(ElectionPost, id=post_id)
+>>>>>>> main
 
 
 
@@ -566,3 +668,37 @@ class LeaderboardView(APIView):
 #             {"message": f"Vote successfully cast for {candidate.user.full_name} in {post.position}. You cannot vote again for this post."},
 #             status=status.HTTP_201_CREATED
 #         )
+
+from rest_framework.views import APIView
+class StartCountingView(APIView):
+    def post(self, request):
+        post_id = request.data.get('post_id')
+        post = ElectionPost.objects.get(id=post_id)
+
+        # Fetch all votes for the post
+        votes = VoterVote.objects.filter(post=post)
+        candidates = Candidate.objects.filter(position_applied=post)
+
+        # Initialize Redis leaderboard
+        redis_key = f'leaderboard:post:{post_id}'
+        redis_client.delete(redis_key)  # Clear previous leaderboard
+
+        # Count votes and store in Redis
+        for candidate in candidates:
+            vote_count = votes.filter(candidate=candidate).count()
+            redis_client.zadd(redis_key, {candidate.name: vote_count})
+
+        return Response({'message': 'Counting started! Leaderboard initialized.'})
+    
+from rest_framework.views import APIView
+from rest_framework.response import Response
+import redis
+
+# Connect to Redis
+redis_client = redis.StrictRedis.from_url(settings.CACHES['default']['LOCATION'])
+class LeaderboardView(APIView):
+    def get(self, request, post_id):
+        redis_key = f'leaderboard:post:{post_id}'
+        leaderboard = redis_client.zrange(redis_key, 0, -1, withscores=True, desc=True)
+        formatted_leaderboard = {name.decode('utf-8'): int(score) for name, score in leaderboard}
+        return Response({'leaderboard': formatted_leaderboard})
