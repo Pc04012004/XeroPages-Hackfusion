@@ -55,7 +55,7 @@ class EventView(generics.ListCreateAPIView):
         f_name = request.data.get("f_name")
         try:
           representative = Custom_User.objects.get(full_name=r_name)
-          faculty_coordinator = Custom_User.objects.get(full_name=r_name)
+          faculty_coordinator = Custom_User.objects.get(full_name=f_name)
         except Custom_User.DoesNotExist:
           return  Response({"error": "Name Not Correct Or Faculty doesn't exist "}, status=status.HTTP_400_BAD_REQUEST)
 
