@@ -65,10 +65,12 @@ CHANNEL_LAYERS = {
 }
 
 # Application definition
-CORS_ALLOWED_ORIGINS = [
-    "*",  # React development server
+# CORS_ALLOWED_ORIGINS = [
+#     "*",  # React development server
     
-]
+# ]
+CORS_ALLOW_ALL_ORIGINS = True
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
