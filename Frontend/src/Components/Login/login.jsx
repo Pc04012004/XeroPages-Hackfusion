@@ -17,7 +17,7 @@ function Login() {
     };
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/login/", userData);
+      const response = await axios.post("https://xeropages.onrender.com/auth/login/", userData);
 
       if (response.status === 200) {
         const { user, access_token } = response.data;
@@ -45,7 +45,7 @@ function Login() {
 
   const handleAdminLogin = () => {
     // Redirect to the Django admin panel
-    window.location.href = "http://127.0.0.1:8000/admin";
+    window.location.href = "https://xeropages.onrender.com/admin";
   };
 
   return (

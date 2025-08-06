@@ -35,7 +35,7 @@ function ElectionPost() {
           throw new Error('No access token found. Please log in.');
         }
 
-        const response = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
+        const response = await axios.get('https://xeropages.onrender.com/election/electionposts/', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -69,7 +69,7 @@ function ElectionPost() {
           throw new Error('No access token found. Please log in.');
         }
 
-        const response = await axios.get('http://127.0.0.1:8000/election/voterRegister', {
+        const response = await axios.get('https://xeropages.onrender.com/election/voterRegister', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -100,13 +100,13 @@ function ElectionPost() {
         }
 
         if (userRole !== 'student') {
-          response = await axios.get(`http://127.0.0.1:8000/election/candidates/${userRole}-approval/0/`, {
+          response = await axios.get(`https://xeropages.onrender.com/election/candidates/${userRole}-approval/0/`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
         } else {
-          response = await axios.get(`http://127.0.0.1:8000/election/candidates/approved`, {
+          response = await axios.get(`https://xeropages.onrender.com/election/candidates/approved`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -179,7 +179,7 @@ function ElectionPost() {
       }
 
       const response = await axios.put(
-        `http://127.0.0.1:8000/election/candidates/${userRole}-approval/${candidateId}/`,
+        `https://xeropages.onrender.com/election/candidates/${userRole}-approval/${candidateId}/`,
         { dean_approved: true },
         {
           headers: {
@@ -211,7 +211,7 @@ function ElectionPost() {
       console.log(postId)
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/cast_vote/',
+        'https://xeropages.onrender.com/election/cast_vote/',
         { candidate_id: candidateId, post_id: postId }, // Pass both candidate_id and post_id
         {
           headers: {

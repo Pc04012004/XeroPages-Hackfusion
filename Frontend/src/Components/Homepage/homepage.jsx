@@ -34,7 +34,7 @@ function Home() {
         if (["faculty", "dean_student", "hod", "director", "warden", "security)", "doctor", "sport_head", "board_member"].includes(parsedUser?.role)) {
           // Fetch faculty profile
           response = await axios.get(
-            `http://127.0.0.1:8000/auth/faculty/profile/`, // Ensure the correct endpoint
+            `https://xeropages.onrender.com/auth/faculty/profile/`, // Ensure the correct endpoint
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ function Home() {
         } else if (parsedUser.role === "student") {
           // Fetch student profile
           response = await axios.get(
-            `http://127.0.0.1:8000/auth/StudentProfileDetail/`, // Ensure the correct endpoint
+            `https://xeropages.onrender.com/auth/StudentProfileDetail/`, // Ensure the correct endpoint
             {
               headers: {
                 Authorization: `Bearer ${token}`,

@@ -37,7 +37,7 @@ function BSHome() {
 
         // Fetch active applications (events, budgets, sponsorships)
         const applicationsResponse = await axios.get(
-          "http://127.0.0.1:8000/event/events/",
+          "https://xeropages.onrender.com/event/events/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -47,7 +47,7 @@ function BSHome() {
 
         // Fetch recent budgets
         const budgetsResponse = await axios.get(
-          "http://127.0.0.1:8000/event/event-budget/",
+          "https://xeropages.onrender.com/event/event-budget/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -57,7 +57,7 @@ function BSHome() {
 
         // Fetch representatives
         const representativesResponse = await axios.get(
-          "http://127.0.0.1:8000/event/representatives/",
+          "https://xeropages.onrender.com/event/representatives/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -109,7 +109,7 @@ function BSHome() {
         throw new Error("No access token found. Please log in.");
       }
 
-      const response = await axios.post("http://127.0.0.1:8000/event/event-budget/", budgetFormData, {
+      const response = await axios.post("https://xeropages.onrender.com/event/event-budget/", budgetFormData, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -140,7 +140,7 @@ function BSHome() {
       const requestData = { ...formData, date: formattedDate };
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/event/events/",
+        "https://xeropages.onrender.com/event/events/",
         requestData,
         {
           headers: {

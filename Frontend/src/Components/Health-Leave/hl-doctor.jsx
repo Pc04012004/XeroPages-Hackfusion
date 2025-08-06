@@ -28,7 +28,7 @@ function DoctorDashboard() {
           throw new Error("No access token found. Please log in.");
         }
 
-        const response = await axios.get("http://127.0.0.1:8000/leave/health-records/", {
+        const response = await axios.get("https://xeropages.onrender.com/leave/health-records/", {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include access token in headers
           },
@@ -60,7 +60,7 @@ function DoctorDashboard() {
       }
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/leave/health-records/",
+        "https://xeropages.onrender.com/leave/health-records/",
         formData, // Form data as payload
         {
           headers: {

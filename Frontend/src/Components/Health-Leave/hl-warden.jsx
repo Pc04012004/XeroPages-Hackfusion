@@ -20,7 +20,7 @@ function WardenDashboard() {
         }
 
         // Fetch pending leave requests
-        const response = await axios.get("http://127.0.0.1:8000/leave/leave-requests/unapproved/warden/", {
+        const response = await axios.get("https://xeropages.onrender.com/leave/leave-requests/unapproved/warden/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -58,7 +58,7 @@ function WardenDashboard() {
 
       // Make a PUT request to approve the leave request
       const response = await axios.put(
-        `http://127.0.0.1:8000/leave/leave-requests/${requestId}/warden-approve/`,
+        `https://xeropages.onrender.com/leave/leave-requests/${requestId}/warden-approve/`,
         { action: "approve" }, // JSON payload
         {
           headers: {
@@ -82,7 +82,7 @@ function WardenDashboard() {
     try {
       const accessToken = localStorage.getItem("access_token"); // Get access token from localStorage
       const response = await axios.put(
-        `http://127.0.0.1:8000/leave/leave-requests/${requestId}/warden-approve/`,
+        `https://xeropages.onrender.com/leave/leave-requests/${requestId}/warden-approve/`,
         { action: "reject" }, // JSON payload
         {
           headers: {

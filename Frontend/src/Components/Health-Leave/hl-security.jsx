@@ -19,7 +19,7 @@ function SecurityDashboard() {
           throw new Error("No access token found. Please log in.");
         }
 
-        const response = await axios.get("http://127.0.0.1:8000/leave/leave-requests/pending/security/", {
+        const response = await axios.get("https://xeropages.onrender.com/leave/leave-requests/pending/security/", {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include access token in headers
           },
@@ -58,7 +58,7 @@ function SecurityDashboard() {
 
       // Make a PUT request to approve the leave request
       const response = await axios.put(
-        `http://127.0.0.1:8000/leave/leave-requests/${requestId}/security-verify/`,
+        `https://xeropages.onrender.com/leave/leave-requests/${requestId}/security-verify/`,
         { action : "approve"},
          // JSON payload
         {
@@ -88,7 +88,7 @@ function SecurityDashboard() {
 
 //       // Make a PUT request to reject the leave request
 //       const response = await axios.put(
-//         `http://127.0.0.1:8000/leave/leave-requests/${requestId}/security-verify/`,
+//         `https://xeropages.onrender.com/leave/leave-requests/${requestId}/security-verify/`,
 //           // JSON payload
 //         {
 //           headers: {

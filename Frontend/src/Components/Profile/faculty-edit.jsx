@@ -74,7 +74,7 @@ function FacultyEditProfile() {
 
       // Send the request to the backend
       const response = await axios.post(
-        "http://127.0.0.1:8000/auth/faculty/profile/",
+        "https://xeropages.onrender.com/auth/faculty/profile/",
         formDataToSend,
         {
           headers: {
