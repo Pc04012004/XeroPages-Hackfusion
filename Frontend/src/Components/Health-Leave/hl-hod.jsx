@@ -60,7 +60,7 @@ function HodDashboard() {
       // Make a PUT request to approve the leave request
       const response = await axios.put(
         `http://127.0.0.1:8000/leave/leave-requests/${requestId}/hod-approve/`,
-        { action: "approve" }, // JSON payload
+        { action: "approve"}, // JSON payload
         {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include the access token in the headers

@@ -98,6 +98,7 @@ class EventBudgetView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         event_id = request.data.get("event")
+        print(event_id)
         budget_amount = request.data.get("budget_amount")
         budget = request.data.get("budget")
 

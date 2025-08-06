@@ -1,7 +1,11 @@
 import requests
 import os
 from google.cloud import vision, videointelligence
-
+# 🔹 Video Moderation (Google Video Intelligence)
+GCS_BUCKET_NAME = "hackfusion2025"
+from google.cloud import videointelligence
+from google.cloud import storage
+import time
 # Load API Keys
 PERSPECTIVE_API_KEY = "AIzaSyClrrJptAEwgdgmm3PyCoXb7IflrynDias"
 
@@ -52,6 +56,8 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "backend\your_google_credentials.
 #     annotations = response.safe_search_annotation
 #     print("run")
 #     return annotations.adult != 4 and annotations.violence != 4  # ✅ True if safe
+
+
 def moderate_image(image_path):
     print("acess")
     client = vision.ImageAnnotatorClient()

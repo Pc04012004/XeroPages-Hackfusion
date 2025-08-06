@@ -69,7 +69,7 @@ function RegisterCandidate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
     try {
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
@@ -96,7 +96,7 @@ function RegisterCandidate() {
     } catch (error) {
       // console.error('Error:', error);
       // alert('An error occurred. Please try again.');
-      console.log(response.data);
+      //console.log(response.data);
     }
   };
   if (loading) {

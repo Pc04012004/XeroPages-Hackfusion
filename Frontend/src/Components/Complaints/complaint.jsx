@@ -29,7 +29,7 @@ const AnonymousComplaintSystem = () => {
         const fetchComplaints = async () => {
             try {
                 const response = await axios.get(
-                    'http://127.0.0.1:8000/Complaints/complaints/',
+                    'http://127.0.0.1:8000/complaints/complaints/',
                     {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -88,7 +88,7 @@ const AnonymousComplaintSystem = () => {
 
         try {
             const response = await axios.post(
-                'http://127.0.0.1:8000/Complaints/submit-complaint/', // Replace with your API endpoint
+                'http://127.0.0.1:8000/complaints/submit-complaint/',  
                 formData,
                 {
                     headers: {
@@ -116,7 +116,7 @@ const AnonymousComplaintSystem = () => {
     const handleVoteForReveal = async (complaintId) => {
         try {
             const response = await axios.post(
-                `http://127.0.0.1:8000/Complaints/api/complaints/${complaintId}/vote/`,
+                `http://127.0.0.1:8000/complaints/api/complaints/${complaintId}/vote/`,
                 { role: userRole }, // Send user role in the request body
                 {
                     headers: {
