@@ -37,7 +37,7 @@ SECRET_KEY = "django-insecure-bqy$@b9u0rdo_-5#t9=^bcdx6(4t4b-)+5#%6b@y(m15%_i%%p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'login.Custom_User'
 # ASGI Application
 ASGI_APPLICATION = "backend.asgi.application"
