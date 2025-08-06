@@ -8,6 +8,8 @@ function BSHome() {
   const [error, setError] = useState(null); // Error state
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   const [representatives, setRepresentatives] = useState([]); // State for representatives
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     event_type: "",
@@ -17,6 +19,12 @@ function BSHome() {
     r_name: "", // Representative name (dropdown)
     f_name: "",
   }); // State for form data
+  const [budgetFormData, setBudgetFormData] = useState({
+    event_id: "",
+    budget_amount: "",
+    budget: "",
+  });
+
 
   // Fetch active applications, recent budgets, and representatives from the API
   useEffect(() => {
@@ -71,6 +79,19 @@ function BSHome() {
     fetchData(); // Call the function to fetch data
   }, []);
 
+  const handleBudgetInputChange = (e) => {
+    const { name, value } = e.target;
+    setBudgetFormData({
+      ...budgetFormData,
+      [name]: value,
+    });
+  };
+
+  const openBudgetModal = (eventId) => {
+    setSelectedEventId(eventId);
+    setBudgetFormData({ event_id: eventId, budget_amount: "", budget_description: "" });
+    setIsBudgetModalOpen(true);
+  };
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -78,6 +99,27 @@ function BSHome() {
       ...formData,
       [name]: value,
     });
+  };
+
+  const handleBudgetSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      if (!accessToken) {
+        throw new Error("No access token found. Please log in.");
+      }
+
+      const response = await axios.post("http://127.0.0.1:8000/event/event-budget/", budgetFormData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Budget added successfully!");
+        window.location.reload();
+      }
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || err.message}`);
+    }
   };
 
   // Handle form submission
@@ -153,6 +195,45 @@ function BSHome() {
             Sponsorship Request
           </button>
         </div>
+
+        {isBudgetModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Add Budget</h3>
+            <form onSubmit={handleBudgetSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Budget Amount</label>
+                <input
+                  type="text"
+                  name="budget_amount"
+                  value={budgetFormData.budget_amount}
+                  onChange={handleBudgetInputChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Budget Description</label>
+                <textarea
+                  name="budget"
+                  value={budgetFormData.budget}
+                  onChange={handleBudgetInputChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button onClick={() => setIsBudgetModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                  Cancel
+                </button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )};
 
         {/* Modal for New Event Request */}
         {isModalOpen && (
@@ -288,6 +369,8 @@ function BSHome() {
                 <th className="py-2 text-gray-600">Status</th>
                 <th className="py-2 text-gray-600">Type</th>
                 <th className="py-2 text-gray-600">Venue</th>
+                <th className="py-2 text-gray-600">Budget</th>
+
               </tr>
             </thead>
             <tbody>
@@ -311,6 +394,11 @@ function BSHome() {
                   <td className="py-3 text-gray-700">
                     {application.venue}
                   </td>
+                    <td className="py-3">
+                        <button onClick={() => openBudgetModal(application.id)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        Add Budget
+                        </button>
+                    </td>
                 </tr>
               ))}
             </tbody>

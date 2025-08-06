@@ -209,21 +209,25 @@ function FacilityView() {
       if (!accessToken) {
         throw new Error("No access token found. Please log in.");
       }
-
-      if (!formData.date) {
-        throw new Error("Please select a date.");
+  
+      if (!formData.start_date || !formData.end_date) {
+        throw new Error("Please select both start and end dates.");
       }
-
-      // Fetch availability data from the API
+  
+      // Fetch availability data from the API with query parameters
       const response = await axios.get(
-        `http://127.0.0.1:8000/campusfacility/facilities/${selectedFacility.id}/availability/${formData.date}/`,
+        `http://127.0.0.1:8000/campusfacility/facility-availability/${selectedFacility.id}/`,
         {
+          params: {
+            start_date: formData.start_date, // Pass start_date as a query parameter
+            end_date: formData.end_date, // Pass end_date as a query parameter
+          },
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-
+  
       setAvailabilityData(response.data); // Update state with fetched availability data
     } catch (err) {
       setError("Failed to fetch availability data. Please try again."); // Show error message
@@ -472,69 +476,82 @@ function FacilityView() {
 
       {/* Availability Modal */}
       {isAvailabilityModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-            <h2 className="text-xl font-bold mb-4">
-              Check Availability: {selectedFacility?.name}
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <button
-                onClick={handleCheckAvailability}
-                className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
-              >
-                Check Availability
-              </button>
-              {availabilityData && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold mb-2">Booked Slots</h3>
-                  {availabilityData.booked_slots.length > 0 ? (
-                    <table className="min-w-full bg-white border border-gray-300">
-                      <thead>
-                        <tr>
-                          <th className="py-2 px-4 border-b text-left">Start Time</th>
-                          <th className="py-2 px-4 border-b text-left">End Time</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {availabilityData.booked_slots.map((slot, index) => (
-                          <tr key={index}>
-                            <td className="py-2 px-4 border-b">{slot.start_time}</td>
-                            <td className="py-2 px-4 border-b">{slot.end_time}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="text-gray-700">No booked slots for this date.</p>
-                  )}
-                </div>
-              )}
-              {error && <p className="text-red-600 text-sm">{error}</p>}
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={closeAvailabilityModal}
-                  className="bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+      <h2 className="text-xl font-bold mb-4">
+        Check Availability: {selectedFacility?.name}
+      </h2>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Start Date
+          </label>
+          <input
+            type="date"
+            name="start_date"
+            value={formData.start_date}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
         </div>
-      )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            End Date
+          </label>
+          <input
+            type="date"
+            name="end_date"
+            value={formData.end_date}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <button
+          onClick={handleCheckAvailability}
+          className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+        >
+          Check Availability
+        </button>
+        {availabilityData && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold mb-2">Booked Slots</h3>
+            {availabilityData.booked_slots.length > 0 ? (
+              <table className="min-w-full bg-white border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-left">Start Time</th>
+                    <th className="py-2 px-4 border-b text-left">End Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {availabilityData.booked_slots.map((slot, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b">{slot.start_time}</td>
+                      <td className="py-2 px-4 border-b">{slot.end_time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-gray-700">No booked slots for this date.</p>
+            )}
+          </div>
+        )}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={closeAvailabilityModal}
+            className="bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       <Footer />
     </>

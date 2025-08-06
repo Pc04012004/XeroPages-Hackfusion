@@ -145,7 +145,7 @@ CACHES = {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'backend',
 #         'USER': 'postgres',
-#         'PASSWORD': 'adminpy',
+#         'PASSWORD': 'admin',
 #         'HOST': 'localhost',
 #         'PORT': '5432',
 #     }
@@ -210,14 +210,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Use your SMTP provider
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'omwasu20@gmail.com'  # Your email
-EMAIL_HOST_PASSWORD = 'dtbr nncl vqjk bqdz'  # App password (not your email password)
+EMAIL_HOST_USER = 'sarthakmanapurekh@gmail.com'  # Your email
+EMAIL_HOST_PASSWORD = 'xzuj uwda fxgk yxji'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),  # Short-lived access token
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # Short-lived access token
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Long-lived refresh token
     "ROTATE_REFRESH_TOKENS": True,  # Generate new refresh tokens on refresh
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens

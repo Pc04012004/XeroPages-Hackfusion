@@ -90,7 +90,7 @@ class HODApprovalView(generics.UpdateAPIView):
         if action == "approve":
             leave_request.hod_approval = True
             leave_request.save()
-            student=StudentProfile.objects.get(user=request.user.id)
+            student=StudentProfile.objects.get(user=leave_request.student)
             subject = f"Leave Approved for {student.full_name}"
             message = f"""
             Dear student,
@@ -150,7 +150,7 @@ class WardenApprovalView(generics.UpdateAPIView):
         if action == "approve":
             leave_request.warden_approval = True
             leave_request.save()
-            student=StudentProfile.objects.get(user=request.user.id)
+            student=StudentProfile.objects.get(user=leave_request.student)
             subject = f"Leave Approved for {student.full_name}"
             message = f"""
             Dear student,

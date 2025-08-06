@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import sportsmeet from '../../assets/sports-meet.jpeg';
+import artexhibition from '../../assets/art-exhibition.jpg';
+import techtalk from '../../assets/tech-talk.jpg';
 function Hero(props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -13,19 +15,19 @@ function Hero(props) {
       title: "Annual Sports Meet",
       description: "Join us for an exciting day of sports and fun activities!",
       date: "March 25, 2025",
-      image: "https://via.placeholder.com/1600x600?text=Event+1",
+      image: sportsmeet,
     },
     {
       title: "Art Exhibition",
       description: "Explore beautiful art by emerging artists from all over the world.",
       date: "April 10, 2025",
-      image: "https://via.placeholder.com/1600x600?text=Event+2",
+      image: artexhibition,
     },
     {
       title: "Tech Talk: AI Future",
       description: "A deep dive into the future of AI with industry experts.",
       date: "May 5, 2025",
-      image: "https://via.placeholder.com/1600x600?text=Event+3",
+      image: techtalk,
     },
   ];
 
