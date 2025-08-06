@@ -38,6 +38,10 @@ SECRET_KEY = "django-insecure-bqy$@b9u0rdo_-5#t9=^bcdx6(4t4b-)+5#%6b@y(m15%_i%%p
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://xeropages.onrender.com'
+]
+
 AUTH_USER_MODEL = 'login.Custom_User'
 # ASGI Application
 ASGI_APPLICATION = "backend.asgi.application"
