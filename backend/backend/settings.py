@@ -66,7 +66,7 @@ CHANNEL_LAYERS = {
 
 # Application definition
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # React development server
+    "*",  # React development server
     
 ]
 INSTALLED_APPS = [

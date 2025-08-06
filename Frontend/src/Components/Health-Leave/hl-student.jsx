@@ -29,7 +29,7 @@ function StudentDashboard() {
           throw new Error("No access token found. Please log in.");
         }
 
-        const response = await axios.get("http://127.0.0.1:8000/leave/leave-requests/", {
+        const response = await axios.get("https://xeropages.onrender.com/leave/leave-requests/", {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include access token in headers
           },
@@ -102,7 +102,7 @@ function StudentDashboard() {
       };
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/leave/leave-requests/",
+        "https://xeropages.onrender.com/leave/leave-requests/",
         payload,
         {
           headers: {

@@ -30,7 +30,7 @@ function ElectionHome() {
         }
 
         // Fetch election posts
-        const postsResponse = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
+        const postsResponse = await axios.get('https://xeropages.onrender.com/election/electionposts/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -43,7 +43,7 @@ function ElectionHome() {
         setElectionPosts(posts);
 
         // Fetch approved candidates (live nominees)
-        const nomineesResponse = await axios.get('http://127.0.0.1:8000/election/candidates/approved/', {
+        const nomineesResponse = await axios.get('https://xeropages.onrender.com/election/candidates/approved/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -80,7 +80,7 @@ function ElectionHome() {
       }
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/cast_vote/',
+        'https://xeropages.onrender.com/election/cast_vote/',
         { candidate_id: candidateId ,post_id:post_id},
         {
           headers: {

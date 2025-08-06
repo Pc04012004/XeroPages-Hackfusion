@@ -29,7 +29,7 @@ function ElectionResults() {
 
         // Fetch election posts from the API
         const response = await axios.get(
-          "http://127.0.0.1:8000/election/electionposts/",
+          "https://xeropages.onrender.com/election/electionposts/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -58,7 +58,7 @@ function ElectionResults() {
 
       // Make a POST request to start counting
       const response = await axios.post(
-        `http://127.0.0.1:8000/election/start_counting/`,
+        `https://xeropages.onrender.com/election/start_counting/`,
         { post_id: electionId }, // Send the election ID in the request body
         {
           headers: {
@@ -94,7 +94,7 @@ function ElectionResults() {
 
           // Fetch leaderboard data from the API
           const response = await axios.get(
-            `http://127.0.0.1:8000/election/leaderboard/${selectedPostId}/`,
+            `https://xeropages.onrender.com/election/leaderboard/${selectedPostId}/`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,

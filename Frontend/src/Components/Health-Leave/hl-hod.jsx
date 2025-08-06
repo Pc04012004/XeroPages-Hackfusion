@@ -20,7 +20,7 @@ function HodDashboard() {
         }
 
         // Fetch pending leave requests
-        const response = await axios.get("http://127.0.0.1:8000/leave/leave-requests/unapproved/hod/", {
+        const response = await axios.get("https://xeropages.onrender.com/leave/leave-requests/unapproved/hod/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -59,7 +59,7 @@ function HodDashboard() {
 
       // Make a PUT request to approve the leave request
       const response = await axios.put(
-        `http://127.0.0.1:8000/leave/leave-requests/${requestId}/hod-approve/`,
+        `https://xeropages.onrender.com/leave/leave-requests/${requestId}/hod-approve/`,
         { action: "approve"}, // JSON payload
         {
           headers: {
@@ -83,7 +83,7 @@ function HodDashboard() {
     try {
       const accessToken = localStorage.getItem("access_token"); // Get access token from localStorage
       const response = await axios.put(
-        `http://127.0.0.1:8000/leave/leave-requests/${requestId}/hod-approve/`,
+        `https://xeropages.onrender.com/leave/leave-requests/${requestId}/hod-approve/`,
         { action: "reject"},
         {
           headers: {

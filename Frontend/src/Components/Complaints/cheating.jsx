@@ -36,7 +36,7 @@ function CheatingRecordSystem() {
         }
 
         const response = await axios.get(
-          "http://127.0.0.1:8000/complaints/cheating-record-list/",
+          "https://xeropages.onrender.com/complaints/cheating-record-list/",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -137,7 +137,7 @@ function CheatingRecordSystem() {
 
       // Send the request to the backend
       const response = await axios.post(
-        "http://127.0.0.1:8000/complaints/add-cheating-record/", // Replace with your API endpoint
+        "https://xeropages.onrender.com/complaints/add-cheating-record/", // Replace with your API endpoint
         formDataToSend,
         {
           headers: {
@@ -175,7 +175,7 @@ function CheatingRecordSystem() {
 
       // Send the PATCH request to the backend
       const response = await axios.patch(
-        `http://127.0.0.1:8000/complaints/cheating-records/${actionData.cheating_record_id}/add-action/`,
+        `https://xeropages.onrender.com/complaints/cheating-records/${actionData.cheating_record_id}/add-action/`,
         { action: actionData.action }, // Send the action data
         {
           headers: {

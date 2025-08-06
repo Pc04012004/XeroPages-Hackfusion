@@ -41,7 +41,7 @@ function RegisterCandidate() {
           throw new Error('No access token found. Please log in.');
         }
 
-        const response = await axios.get('http://127.0.0.1:8000/election/electionposts/', {
+        const response = await axios.get('https://xeropages.onrender.com/election/electionposts/', {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include the access token in the request headers
           },
@@ -77,7 +77,7 @@ function RegisterCandidate() {
       }
   
       const response = await axios.post(
-        'http://127.0.0.1:8000/election/candidates/register/',
+        'https://xeropages.onrender.com/election/candidates/register/',
         formData,
         {
           headers: {

@@ -39,7 +39,7 @@ function FacilityView() {
         if (role === "student") {
           // Fetch facilities for students
           const facilitiesResponse = await axios.get(
-            "http://127.0.0.1:8000/campusfacility/facilities/",
+            "https://xeropages.onrender.com/campusfacility/facilities/",
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -50,7 +50,7 @@ function FacilityView() {
 
           // Fetch booking history for students
           const bookingHistoryResponse = await axios.get(
-            "http://127.0.0.1:8000/campusfacility/booking-history/",
+            "https://xeropages.onrender.com/campusfacility/booking-history/",
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -61,7 +61,7 @@ function FacilityView() {
         } else if (role === "hod" || role === "sport_head") {
           // Fetch pending approvals for HOD or Sport Head
           const response = await axios.get(
-            "http://127.0.0.1:8000/campusfacility/pending-approvals/",
+            "https://xeropages.onrender.com/campusfacility/pending-approvals/",
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -114,7 +114,7 @@ function FacilityView() {
 
       // Send the booking request to the API
       const response = await axios.post(
-        "http://127.0.0.1:8000/campusfacility/book-facility/",
+        "https://xeropages.onrender.com/campusfacility/book-facility/",
         payload,
         {
           headers: {
@@ -146,7 +146,7 @@ function FacilityView() {
 
       // Send the POST request to approve/reject the booking
       const response = await axios.post(
-        `http://127.0.0.1:8000/campusfacility/approve-reject-booking/${bookingId}/`,
+        `https://xeropages.onrender.com/campusfacility/approve-reject-booking/${bookingId}/`,
         { action: action }, // Pass the action in the request body
         {
           headers: {
@@ -216,7 +216,7 @@ function FacilityView() {
   
       // Fetch availability data from the API with query parameters
       const response = await axios.get(
-        `http://127.0.0.1:8000/campusfacility/facility-availability/${selectedFacility.id}/`,
+        `https://xeropages.onrender.com/campusfacility/facility-availability/${selectedFacility.id}/`,
         {
           params: {
             start_date: formData.start_date, // Pass start_date as a query parameter
